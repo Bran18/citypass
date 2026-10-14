@@ -2,6 +2,10 @@
 
 Verified 2026-10-10. Project: `Iguapass`, ref `wafunogjrczlwvdnvyfs`, region `us-east-2`.
 
+Rechecked 2026-10-13 through both the Supabase plugin and project-scoped MCP: both identify the configured Iguapass project, which is active and healthy. Hosted migration history still matches the three local files. `npm run test:connected` passed against the configured URL and publishable key, verifying Google Auth, public catalog access and anonymous private-data denials. No remote writes or application configuration changes were required.
+
+The current security advisor also reports a warning for disabled leaked-password protection, in addition to the four intentional private-table default-deny INFO findings. The app uses Google OAuth; review password protection before enabling password authentication. Earlier advisor results below describe the original verification, not the current warning state.
+
 ## Applied remotely
 
 Three checked-in migrations match hosted migration history:

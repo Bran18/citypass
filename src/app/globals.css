@@ -239,7 +239,7 @@ a {
   width: 100%;
   height: auto;
   display: block;
-  border-radius: 45% 45% 5px 5px;
+  border-radius: 6px;
   aspect-ratio: 1.06;
   object-fit: cover;
 }
@@ -896,7 +896,7 @@ dd {
   }
   .landscape {
     aspect-ratio: 1.42;
-    border-radius: 42% 42% 4px 4px;
+    border-radius: 6px;
   }
   .postmark {
     width: 106px;
