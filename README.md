@@ -1,18 +1,28 @@
-# Iguazú Passport
+# CityPassport
 
-**One passport. Your entire Iguazú experience.**
+A multilingual travel passport for discovering destinations, collecting verified visit stamps, buying destination passes, and preparing hotel arrivals. The repository/package retains the original **Iguazú Passport** name; the application now supports a country and city directory. Interface languages are Spanish, English, and Portuguese.
 
-A new mobile-first Next.js application for destination discovery, digital visit stamps and hotel pre-check-in. Spanish, English and Portuguese. Created from scratch; not a fork of Visit Iguazú.
+## What works today
 
-## Current status
+| Area               | Implementation and evidence                                                                                                                                                                                                              |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Discovery          | Country → city browsing, sourced listings, destination guides, published experiences, and a saved city preference. Listings are discovery references, not partner endorsements.                                                          |
+| Accounts           | Pollar Google login and managed Stellar wallets, with independently verified, database-backed application sessions. Supabase Auth is not the application login.                                                                          |
+| Passport           | Global traveler identity, destination collections, authorized QR claims, and an interactive book containing actual collected stamps. Anonymous sample stamps never create records.                                                       |
+| Destination passes | Development offers at exactly 100 **testnet USDC**, one lifetime holding per traveler/city, and +80 non-transferable reputation after independently verified settlement. No venue admission, discount, or redeemable reward is included. |
+| Payments           | Frozen checkout requests, Pollar signing, Stellar verification, durable submission recovery, immutable receipts, and atomic pass fulfillment. A real funded testnet pass purchase was recorded as verified on 2026-10-17.                |
+| Business tools     | Hotel reservations/pre-check-in, merchant onboarding/checkout, destination-scoped merchant review, and experience editing. Access requires the relevant database membership or assignment.                                               |
+| Wallet and swaps   | Pollar balance/receive/send/history views and configured swap venues. A quote was previously inspected; funded swap execution remains unverified.                                                                                        |
+| Reflector          | Client dependency installed; no runtime oracle adapter, feed configuration, or displayed oracle quote yet.                                                                                                                               |
+| On-chain activity  | Separate Rust prototype with recorded local tests; not deployed or connected to the app. Reputation currently lives in PostgreSQL.                                                                                                       |
 
-Implemented source: public discovery; Google OAuth/SSR integration; passport activation/history; authorized QR generation, revocation and stamp claims; hotel organization onboarding; reservation creation; one-time guest invitations; guest form; staff submission review and arrival states. Supabase is the only application persistence backend.
+Saved itineraries and reward interests are browser-local. Inquiry screens are retired (404); their private database records and RPC remain. Funded loyalty redemption, refunds, mainnet checkout, automatic route awards, and unattended reconciliation/retention jobs are not implemented. See the [documentation index](docs/README.md) for the complete map.
 
-**Connected locally to Iguapass (`wafunogjrczlwvdnvyfs`).** Google sign-in, the callback, passport activation and refresh persistence were verified in the browser. The hosted database contains the schema and 15 sourced listings. Live API authorization checks and rolled-back hosted workflow tests passed. Full multi-user browser and concurrent-connection testing remain pilot gates. See [implementation status](docs/IMPLEMENTATION_PLAN.md) and [verification report](docs/VERIFICATION.md).
+Status above comes from source inspection on **2026-10-21** and earlier dated verification records. Remote configuration, balances, and historical acceptance were not re-tested during this documentation update. See [verification](docs/VERIFICATION.md) and the [implementation plan](docs/IMPLEMENTATION_PLAN.md).
 
 ## Run locally
 
-Requires Node.js 22+ and npm. Installed versions are pinned in package-lock.json.
+Requires **Node.js 22+** and npm. Dependencies are pinned in `package.json` and `package-lock.json`.
 
 ```bash
 npm ci
@@ -20,24 +30,35 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Open http://127.0.0.1:3000/es. Public browsing needs no credentials. For a production build locally: `npm run build`, then `npm run start`.
+Open [localhost:3000/es](http://localhost:3000/es). Although the npm script binds to `127.0.0.1`, use **localhost** in the browser: the recorded Pollar development allowlist uses that exact origin. Public editorial discovery works without credentials; database-backed directory and personal/business features require configuration. Connection failures do not turn into fake live data.
 
-In a filesystem-restricted environment, use a writable npm cache (`npm --cache /private/tmp/iguazu-npm-cache ci`) and set `SWC_NATIVE_BINDING_CACHE=/private/tmp/iguazu-swc-cache` for Next commands. These are environment workarounds, not application requirements.
+For a local production server:
 
-## Connect a dedicated Supabase development project
+```bash
+npm run build
+npm run start
+```
 
-1. Select or create a dedicated project; do not run this new-project migration against an unrelated database.
-2. Apply the files in `supabase/migrations/` in timestamp order, then `supabase/seed.sql` in that project's SQL editor, or use the installed Supabase CLI after reviewing its `--help`. Local full Supabase additionally requires Docker, which was not available in this workspace.
-3. Expose **public only**, never private, through the Data API. Keep anonymous Auth sign-ins disabled. The migration enables RLS and grants SELECT/RPC access explicitly.
-4. Add the project URL and publishable key to `.env.local`. There is no application service-role key. Set APP_ORIGIN to the exact application origin (local default `http://127.0.0.1:3000`).
-5. Enable Google under Supabase Auth providers. Configure the Google OAuth client secret in Supabase, never the app source. Register Supabase's displayed callback URL with Google. Add exact app callback URLs to the Supabase redirect allowlist, including local `/auth/callback` URLs and the three locale query variants if required by your allowlist configuration.
-6. Restart Next. Sign in with a real Google account. Activate a passport. In the hotel portal create a pending hotel and reservation, issue an invitation, open it in a separate guest browser, submit with its matching email and review as staff.
-7. An administrator verifies the business and approves its organization, creates an associated participating venue and active stamp definition. Only then does QR management appear in its hotel portal. The seed attractions are **listed**, never participating. Do not change their status without an established partnership.
-8. Verify all rows with separate tourist and hotel sessions. Run Supabase advisors and generate database TypeScript types from the selected project before pilot release. See docs/PILOT_PLAN.md for remaining gates.
+## Configuration
 
-Optional full local Supabase: `DO_NOT_TRACK=1 SUPABASE_TELEMETRY_DISABLED=1 npx supabase --help`; review `start`, `db reset`, `gen types` and `link` help before using them. The checked-in config was generated by CLI 2.120.0. The Iguapass project was initialized through its project-scoped MCP connection; local migration versions match the hosted migration history.
+Use `.env.example` as the variable inventory; keep actual values in ignored `.env.local`.
 
-## Quality checks
+| Variable                               | Purpose                                                                                     | Browser-safe?               |
+| -------------------------------------- | ------------------------------------------------------------------------------------------- | --------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`             | Selected development project's Data API                                                     | Yes                         |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Publishable API key; RLS still controls data                                                | Yes                         |
+| `APP_ORIGIN`                           | Canonical origin for links, QR checks, and cookie security; locally `http://localhost:3000` | Configuration, not a secret |
+| `NEXT_PUBLIC_POLLAR_PUBLISHABLE_KEY`   | Pollar application; network follows `pub_testnet_` / `pub_mainnet_` prefix                  | Yes                         |
+| `POLLAR_SECRET_KEY`                    | Server token verification; must match the publishable key's network                         | **No**                      |
+| `POLLAR_SESSION_BRIDGE_KEY`            | 32-byte lowercase hex backend attestation key matching `private.pollar_bridge_config`       | **No**                      |
+
+No Supabase service-role key is used. Provision the bridge key through trusted administration, never a seed or migration. Allow the exact browser origin and OAuth redirect in Pollar. Changing the Pollar key to mainnet does **not** enable mainnet checkout: the payment implementation explicitly supports testnet only.
+
+The recorded selected development project is **Iguapass (`wafunogjrczlwvdnvyfs`)**. Apply migrations only to an explicitly selected development database. Fresh setup, seed boundaries, CLI workflow, and troubleshooting are in [development and operations](docs/DEVELOPMENT.md). Do not rerun offer/demo provisioning against an existing database as routine setup.
+
+## Validation
+
+Functional changes require:
 
 ```bash
 npm run typecheck
@@ -48,35 +69,30 @@ npx playwright install chromium
 npm run test:e2e
 ```
 
-The database test executes the real migration in embedded PostgreSQL (PGlite), creates minimal Auth identity fixtures, switches database roles, and tests authorization, persistence and replay behavior. It does not emulate or replace Supabase in the application. Independent-connection concurrency and hosted Supabase tests remain required.
+Playwright runs desktop and mobile Chromium. Build before testing; it starts `next start`. Use `TEST_PORT=3017` for an isolated port, with `TEST_SUPABASE_CONFIGURED=1` and `TEST_POLLAR_CONFIGURED=1` only when the tested configuration actually supports those features and origin. `TEST_PILOT_PASSES=1` enables published-offer checks; `TEST_DEMO_SEEDED=1` enables optional demo coverage. See [development](docs/DEVELOPMENT.md) for environment restrictions.
 
-Playwright tests cover public guest pages. Use `TEST_SUPABASE_CONFIGURED=1 npm run test:e2e` with a configured build, or omit that flag for an unconfigured build. Authenticated connected-flow tests require isolated real test identities. Run `npm run test:connected` for read-only hosted API checks. On this Mac the standalone Chromium runner could not launch due to sandbox Mach-port permissions. In-app browser checks were used instead; see docs/VERIFICATION.md.
+`npm run test:connected` performs read-only hosted API checks using `.env.local`. The embedded PostgreSQL suite tests real migrations, access denials, replay, and transactional behavior; it does not replace hosted Supabase, authenticated multi-user browser tests, or independent-connection concurrency tests.
 
-## Structure
+## Repository map
 
-- `src/app/[locale]`: public tourist, passport, guest and hotel pages.
-- `src/app/actions.ts`: validated server actions, no privileged Supabase key.
-- `src/lib/supabase`: request-scoped SSR client and configuration guard.
-- `src/proxy.ts`: refreshed auth cookies and locale forwarding.
-- `messages`: complete ES/EN/PT interface dictionaries.
-- `supabase/migrations`: RLS, relational constraints and transaction RPCs.
-- `tests`, `scripts/test-db.ts`: validation, browser and SQL authorization checks.
-- `docs`: product, data, security, rollout and content provenance.
+```text
+src/app/                  App Router pages and validated server actions
+src/app/[locale]/         Traveler, hotel, merchant, review, and operator routes
+src/components/           UI, passport book, Pollar portal, payment controls
+src/lib/                  Domain validation, data reads, session and Stellar adapters
+messages/{es,en,pt}.json   All application-visible interface copy
+supabase/migrations/      Ordered schema, RLS, grants, transactional RPCs
+supabase/seed.sql          Sourced discovery catalog, not approved partners
+contracts/passport-activity/  Separate Soroban activity prototype
+scripts/                  Database tests, hosted checks, reviewed admin utilities
+tests/                   Unit and desktop/mobile browser coverage
+docs/                    Application, integration, security, and operations guides
+```
 
 ## Documentation
 
-[PRD](docs/PRD.md) · [Architecture](docs/ARCHITECTURE.md) · [Data model](docs/DATA_MODEL.md) · [Authorization](docs/AUTHORIZATION.md) · [QR security](docs/QR_SECURITY.md) · [Loyalty rules](docs/LOYALTY_RULES.md) · [Hotel pre-check-in](docs/HOTEL_PRECHECKIN.md) · [Implementation plan](docs/IMPLEMENTATION_PLAN.md) · [Pilot plan](docs/PILOT_PLAN.md) · [Sources](docs/SOURCES.md)
+Start with [application flows](docs/APPLICATION_FLOW.md), [architecture](docs/ARCHITECTURE.md), and the [integration inventory](docs/INTEGRATIONS.md).
 
-Loyalty transactions, merchant dashboards, operator booking inquiries, staff-management UI, configurable registration fields, guest guide, automatic route awards and platform administration UI remain planned. No production deployment has been performed or authorized.
+For the payment stack: [Pollar](docs/POLLAR_INTEGRATION.md), [Stellar settlement](docs/STELLAR_INTEGRATION.md), [swapping](docs/SWAPPING.md), [Reflector](docs/REFLECTOR_INTEGRATION.md), and [destination passes](docs/DESTINATION_PASSES.md). Developers should also read [RPC contracts](docs/API_REFERENCE.md), [data model](docs/DATA_MODEL.md), [authorization](docs/AUTHORIZATION.md), and [development/operations](docs/DEVELOPMENT.md).
 
-## Living landscape and stamp preview
-
-Discovery retains the original illustrated waterfall. Open the passport to try a Three.js stamp press, then select the sample waterfall stamp to reveal its animated miniature and story. Collected stamps open their recorded details. The landscape loads only inside an open detail dialog; reduced-motion/data-saving visitors receive the SVG with animation opt-in. Dismissing the dialog disposes its graphics resources. Samples never count as collected stamps.
-
-The interactive sample stamp is explicitly a preview: it never writes a claim or changes points. Real claims still require the existing server-side QR validation. Design decisions and verification limits are in [DESIGN_MOTION.md](docs/DESIGN_MOTION.md) and [VERIFICATION.md](docs/VERIFICATION.md).
-
-## Connected local preview
-
-`.env.local` contains the Iguapass project URL and publishable key only and is git-ignored. Never add service-role credentials. The configured Auth site URL is `http://127.0.0.1:3000`, with exact `/auth/callback?locale=es`, `en` and `pt` redirect URLs. Google is enabled and anonymous sign-ins are disabled. A future deployed URL must be added to Auth configuration and `APP_ORIGIN` before deployment.
-
-The 15 directory records remain `listed`, with source metadata and public contacts. No approved partner, QR credential, claim or reward was fabricated. Routes and reward interests remain browser-local as their interfaces state; rewards redemption and automated retention cleanup are still planned. See `docs/DATABASE_CONNECTION.md`.
+The [full documentation index](docs/README.md) links product rules, privacy boundaries, historical decisions, verification evidence, and remaining pilot gates. Application and contract deployment require explicit user approval.
