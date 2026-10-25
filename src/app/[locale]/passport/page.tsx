@@ -24,13 +24,16 @@ import { StampDetail } from '@/components/experience/stamp-detail';
 import { PassportPreview } from '@/components/experience/passport-preview';
 import { PassportStampBook } from '@/components/experience/passport-stamp-book';
 import { passportStampPages } from '@/lib/passport-pages';
+import { ActivityPanel } from '@/components/activity-panel';
+import { getPassportChainState } from '@/lib/activity/server';
 export default async function Passport({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
-  const [t, user, selected, passAccount] = await Promise.all([
+  const [t, user, selected, passAccount, chainState] = await Promise.all([
     getTranslations(),
     session(),
     getSelectedDestination(),
     getPassAccount(),
+    getPassportChainState(),
   ]);
   const db = user ? await createClient() : null;
   const [travelerResult, claimsResult, directory] = db
@@ -167,6 +170,7 @@ export default async function Passport({ params }: { params: Promise<{ locale: s
           ) : null}
         </PageIntro>
       )}
+      {passport ? <ActivityPanel state={chainState} locale={locale} /> : null}
       <div className={passport ? 'passport-workspace' : 'passport-layout'}>
         {passport ? (
           <aside className="passport-identity" aria-label={t('passportUi.summary')}>
@@ -203,10 +207,18 @@ export default async function Passport({ params }: { params: Promise<{ locale: s
                 <h2>{t('passportUi.reputation')}</h2>
                 <div className="passport-reputation">
                   <strong>
-                    {t('destinationPass.reputation', { points: passAccount.reputation })}
+                    {chainState?.unavailable
+                      ? t('chainActivity.unavailable')
+                      : t('destinationPass.reputation', {
+                          points: chainState?.activity?.reputation ?? '0',
+                        })}
                   </strong>
                   <span className="pass-reputation-award">
-                    {t(`destinationPass.tiers.${reputationTier(passAccount.reputation)}`)}
+                    {chainState?.unavailable
+                      ? null
+                      : t(
+                          `destinationPass.tiers.${reputationTier(Number(chainState?.activity?.reputation ?? 0))}`,
+                        )}
                   </span>
                 </div>
                 <details className="pass-details">

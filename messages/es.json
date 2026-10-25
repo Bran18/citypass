@@ -1118,5 +1118,34 @@
     "pilotOfferBenefits": "Tu pase de destino, vinculado a tu pasaporte. Una compra confirmada suma 80 puntos de reputación. No incluye entradas, acceso prioritario, descuentos ni recompensas canjeables.",
     "receivingAccount": "Iniciaste sesión con la cuenta que recibe los pagos de CityPass. Usá otra cuenta de Google para comprar un pase.",
     "holdingsTitle": "Tus pases"
+  },
+  "chainActivity": {
+    "title": "Pasaporte en Stellar",
+    "body": "Tu pasaporte, compras y sellos coleccionados se registran automáticamente en Stellar testnet.",
+    "contract": "Ver contrato del pasaporte",
+    "consent": "El registro del pasaporte, las compras verificadas, los sellos QR y los sellos de exploración autodeclarados se registran automáticamente en Stellar testnet. Las reclamaciones directas no verifican visitas ni otorgan reputación. Tu billetera, contadores e identificadores seudónimos son públicos y persistentes. No se publican nombres, correos, datos de hoteles ni credenciales QR. CityPassport paga las comisiones de registro.",
+    "pending": "Registrando actividad del pasaporte en Stellar…",
+    "confirmed": "Reputación del pasaporte verificada en Stellar.",
+    "unavailable": "La reputación en Stellar no está disponible temporalmente.",
+    "delayed": "La confirmación en Stellar está demorada. Reintentamos automáticamente.",
+    "onChainStamps": "Sellos registrados en Stellar",
+    "onChainExploration": "Sellos autodeclarados en Stellar",
+    "onChainPurchases": "Compras registradas en Stellar"
+  },
+  "merchantServices": {
+    "activityTitle": "Actividad del pasaporte",
+    "kinds": {
+      "0": "Registro del pasaporte",
+      "1": "Compra de pase de destino",
+      "2": "Sello QR",
+      "4": "Compra de servicio y sello",
+      "5": "Sello de exploración autodeclarado"
+    },
+    "states": {
+      "pending": "Pendiente en Stellar",
+      "confirmed": "Registrado en Stellar"
+    },
+    "transaction": "Ver transacción del contrato",
+    "receipt": "Ver comprobante de pago"
   }
 }

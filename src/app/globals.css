@@ -6008,3 +6008,7 @@ select:focus-visible {
   .collected-passport-cover:hover { transform: none; }
   .collected-passport-leaf { animation: none; }
 }
+
+.passport-chain-events { list-style: none; padding: 0; margin-block: 1rem; }
+.passport-chain-events li { display: flex; flex-wrap: wrap; align-items: baseline; gap: .5rem 1rem; border-top: 1px solid var(--border); padding-block: .75rem; }
+.passport-chain-events a { text-decoration: underline; }

@@ -13,6 +13,8 @@ enum Key {
     Pass(Address, BytesN<32>),
     Stamp(Address, BytesN<32>),
     Redemption(BytesN<32>),
+    Service(Address, BytesN<32>),
+    Exploration(Address, BytesN<32>),
 }
 
 #[contracttype]
@@ -22,6 +24,7 @@ pub struct Activity {
     pub purchases: u32,
     pub stamps: u32,
     pub redemptions: u32,
+    pub exploration_stamps: u32,
 }
 
 #[contracttype]
@@ -68,9 +71,21 @@ impl PassportActivity {
         env.storage().instance().set(&Key::Issuer, &issuer);
         env.storage().instance().set(&Key::Paused, &false);
     }
-    // Wallet consent is required before publishing its activity.
-    pub fn activate(env: Env, user: Address) {
-        user.require_auth();
+    pub fn issuer(env: Env) -> Address {
+        env.storage().instance().get(&Key::Issuer).unwrap()
+    }
+    // Inspect accepted evidence before retrying a delivery after a lost response.
+    pub fn event(env: Env, event_id: BytesN<32>) -> Option<Record> {
+        env.storage().persistent().get(&Key::Event(event_id))
+    }
+    pub fn set_issuer(env: Env, issuer: Address) {
+        Self::issuer(env.clone()).require_auth();
+        env.storage().instance().set(&Key::Issuer, &issuer);
+        env.storage().instance().extend_ttl(100_000, 500_000);
+    }
+    // Passport creation is sponsored by the trusted issuer after verified Pollar login.
+    pub fn register(env: Env, user: Address) {
+        Self::issuer(env.clone()).require_auth();
         let key = Key::Activity(user);
         if !env.storage().persistent().has(&key) {
             env.storage().persistent().set(
@@ -80,6 +95,7 @@ impl PassportActivity {
                     purchases: 0,
                     stamps: 0,
                     redemptions: 0,
+                    exploration_stamps: 0,
                 },
             );
         }
@@ -93,6 +109,7 @@ impl PassportActivity {
     }
     // Trusted issuer attests independently verified application events.
     // kind: 1 settled purchase, 2 validated QR stamp, 3 completed funded redemption.
+    // kind: 4 first settled service acquisition (+80 and one stamp), 5 self-reported exploration (stamp only).
     // No client-provided point amounts. No personal data or raw QR credentials.
     pub fn record(env: Env, event_id: BytesN<32>, record: Record) -> Result<Activity, Error> {
         let issuer: Address = env.storage().instance().get(&Key::Issuer).unwrap();
@@ -101,11 +118,13 @@ impl PassportActivity {
             return Err(Error::Paused);
         }
         let key = Key::Activity(record.user.clone());
-        let mut activity: Activity = env
-            .storage()
-            .persistent()
-            .get(&key)
-            .ok_or(Error::Inactive)?;
+        let mut activity: Activity = env.storage().persistent().get(&key).unwrap_or(Activity {
+            reputation: 0,
+            purchases: 0,
+            stamps: 0,
+            redemptions: 0,
+            exploration_stamps: 0,
+        });
         let event_key = Key::Event(event_id.clone());
         if let Some(prior) = env.storage().persistent().get::<_, Record>(&event_key) {
             if prior != record {
@@ -129,6 +148,23 @@ impl PassportActivity {
                 activity.redemptions =
                     activity.redemptions.checked_add(1).ok_or(Error::Overflow)?;
                 Some(Key::Redemption(record.subject.clone()))
+            }
+            4 => {
+                activity.reputation = activity.reputation.checked_add(80).ok_or(Error::Overflow)?;
+                activity.purchases = activity.purchases.checked_add(1).ok_or(Error::Overflow)?;
+                activity.stamps = activity.stamps.checked_add(1).ok_or(Error::Overflow)?;
+                Some(Key::Service(record.user.clone(), record.subject.clone()))
+            }
+            5 => {
+                activity.stamps = activity.stamps.checked_add(1).ok_or(Error::Overflow)?;
+                activity.exploration_stamps = activity
+                    .exploration_stamps
+                    .checked_add(1)
+                    .ok_or(Error::Overflow)?;
+                Some(Key::Exploration(
+                    record.user.clone(),
+                    record.subject.clone(),
+                ))
             }
             _ => return Err(Error::InvalidKind),
         };

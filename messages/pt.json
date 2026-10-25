@@ -1118,5 +1118,34 @@
     "pilotOfferBenefits": "Seu passe de destino, vinculado ao seu passaporte. Uma compra confirmada adiciona 80 pontos de reputação. Não inclui ingressos, entrada prioritária, descontos ou recompensas resgatáveis.",
     "receivingAccount": "Você entrou com a conta que recebe os pagamentos da CityPass. Use outra conta Google para comprar um passe.",
     "holdingsTitle": "Seus passes"
+  },
+  "chainActivity": {
+    "title": "Passaporte na Stellar",
+    "body": "Seu passaporte, compras e carimbos colecionados são registrados automaticamente na Stellar testnet.",
+    "contract": "Ver contrato do passaporte",
+    "consent": "O registro do passaporte, compras verificadas, carimbos QR e carimbos de exploração autodeclarados são registrados automaticamente na Stellar testnet. Resgates diretos não verificam visitas nem atribuem reputação. Sua carteira, contadores e identificadores pseudônimos são públicos e persistentes. Nomes, e-mails, dados de hotéis e credenciais QR não são publicados. CityPassport paga as taxas de registro.",
+    "pending": "Registrando atividade do passaporte na Stellar…",
+    "confirmed": "Reputação do passaporte verificada na Stellar.",
+    "unavailable": "A reputação na Stellar está temporariamente indisponível.",
+    "delayed": "A confirmação na Stellar está atrasada. Estamos tentando novamente automaticamente.",
+    "onChainStamps": "Carimbos registrados na Stellar",
+    "onChainExploration": "Carimbos autodeclarados na Stellar",
+    "onChainPurchases": "Compras registradas na Stellar"
+  },
+  "merchantServices": {
+    "activityTitle": "Atividade do passaporte",
+    "kinds": {
+      "0": "Registro do passaporte",
+      "1": "Compra de passe de destino",
+      "2": "Carimbo QR",
+      "4": "Compra de serviço e carimbo",
+      "5": "Carimbo de exploração autodeclarado"
+    },
+    "states": {
+      "pending": "Pendente na Stellar",
+      "confirmed": "Registrado na Stellar"
+    },
+    "transaction": "Ver transação do contrato",
+    "receipt": "Ver comprovante de pagamento"
   }
 }

@@ -16,7 +16,7 @@ export default defineConfig({
     { name: 'mobile', use: { ...devices['iPhone 13'], defaultBrowserType: 'chromium' } },
   ],
   webServer: {
-    command: `npm run start -- --port ${port}`,
+    command: `ACTIVITY_WORKER_DISABLED=1 npm run start -- --port ${port}`,
     url: `${baseURL}/es`,
     reuseExistingServer: !process.env.CI,
     timeout: 60000,

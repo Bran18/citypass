@@ -1118,5 +1118,34 @@
     "pilotOfferBenefits": "Your destination pass, linked to your passport. A confirmed purchase adds 80 reputation points. Venue admission, priority entry, discounts and redeemable rewards are not included.",
     "receivingAccount": "You are signed in with the CityPass receiving account. Use a different Google account to purchase a pass.",
     "holdingsTitle": "Your passes"
+  },
+  "chainActivity": {
+    "title": "Passport on Stellar",
+    "body": "Your passport, purchases and collected stamps are recorded automatically on Stellar testnet.",
+    "contract": "View passport contract",
+    "consent": "Passport registration, verified purchases, QR stamps and self-reported exploration stamps are recorded automatically on Stellar testnet. Direct exploration claims do not verify a visit or award reputation. Your wallet, counters and pseudonymous event identifiers are public and persistent. Names, emails, hotel details and QR credentials are not published. CityPassport pays the recording fees.",
+    "pending": "Recording passport activity on Stellar…",
+    "confirmed": "Passport reputation verified on Stellar.",
+    "unavailable": "Stellar reputation is temporarily unavailable.",
+    "delayed": "Stellar confirmation is delayed. We are retrying automatically.",
+    "onChainStamps": "Stamps recorded on Stellar",
+    "onChainExploration": "Self-reported stamps on Stellar",
+    "onChainPurchases": "Purchases recorded on Stellar"
+  },
+  "merchantServices": {
+    "activityTitle": "Passport activity",
+    "kinds": {
+      "0": "Passport registration",
+      "1": "Destination pass purchase",
+      "2": "QR stamp",
+      "4": "Service purchase and stamp",
+      "5": "Self-reported exploration stamp"
+    },
+    "states": {
+      "pending": "Pending on Stellar",
+      "confirmed": "Recorded on Stellar"
+    },
+    "transaction": "View contract transaction",
+    "receipt": "View payment receipt"
   }
 }

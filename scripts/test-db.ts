@@ -2049,6 +2049,41 @@ try {
   check((await evidenceRpc(treasuryConfirmed)).status==='confirmed','verified CityPass receipt fulfills pass');
   check((await evidenceRpc(treasuryConfirmed)).status==='confirmed' && (await passRpc('account')).reputation===80,'treasury receipt replay cannot duplicate reputation');
 
+  // Automatic chain delivery is private, signed, leased and derived only from accepted transitions.
+  await admin();
+  check(Number((await db.query<{n:number}>("select count(*)::int n from private.activity_outbox where kind=1")).rows[0].n)>0,'confirmed receipt automatically enqueues pass activity');
+  check(Number((await db.query<{n:number}>("select count(*)::int n from private.activity_outbox where kind=0")).rows[0].n)>0,'verified Pollar profile automatically enqueues passport');
+  check((await db.query("select 1 from private.activity_outbox o join public.destination_pass_holdings h on h.id=o.source_id join public.checkout_requests c on c.id=h.request_id where o.kind=1 and (c.status<>'confirmed' or o.wallet<>c.payer_address)")).rows.length===0,'queued purchase wallet comes from confirmed payer');
+  await as(null);
+  check(await denied('select * from private.activity_outbox'),'anonymous cannot read publishing jobs');
+  check(await denied('update private.activity_deliveries set state=\'confirmed\''),'client cannot forge chain delivery');
+  const chainTarget='C'+'A'.repeat(55);
+  const statusRpc=async()=> (await db.query<{r:Record<string,unknown>}>('select public.passport_activity_status($1) r',[chainTarget])).rows[0].r;
+  check((await statusRpc()).error==='unauthorized','anonymous cannot read passport publishing status');
+  const workerRaw=async(payload:string,mac:string)=> (await db.query<{r:Record<string,any>}>('select public.activity_worker_command($1,$2) r',[payload,mac])).rows[0].r;
+  const workerPayload=(action:string,extra:Record<string,unknown>={})=> JSON.stringify({action,contract_id:chainTarget,issued:Math.floor(Date.now()/1000),nonce:crypto.randomUUID(),...extra});
+  const workerMac=(payload:string)=>createHmac('sha256',Buffer.from(bridgeKey,'hex')).update('citypassport-activity-worker-v1\n'+payload).digest('hex');
+  check((await workerRaw(workerPayload('claim'),'0'.repeat(64))).error==='unauthorized','forged worker MAC denied');
+  let wp=workerPayload('claim',{issued:Math.floor(Date.now()/1000)-60});
+  check((await workerRaw(wp,workerMac(wp))).error==='unauthorized','expired worker assertion denied');
+  wp=workerPayload('claim');
+  const leased=await workerRaw(wp,workerMac(wp));
+  check(Boolean(leased.job?.lease_token),'authorized worker leases one persisted event');
+  check((await workerRaw(wp,workerMac(wp))).error==='replay','worker request replay denied');
+  let next=workerPayload('claim');
+  check((await workerRaw(next,workerMac(next))).job===null,'global issuer lease prevents concurrent source transactions');
+  next=workerPayload('finish',{job_id:leased.job.id,lease_token:crypto.randomUUID(),state:'confirmed',evidence_hash:'11'.repeat(32)});
+  check((await workerRaw(next,workerMac(next))).error==='stale_lease','wrong lease cannot confirm a job');
+  next=workerPayload('finish',{job_id:leased.job.id,lease_token:leased.job.lease_token,state:'confirmed',evidence_hash:'11'.repeat(32)});
+  check((await workerRaw(next,workerMac(next))).ok===true,'authorized delivery confirmation commits');
+  const again=workerPayload('finish',{job_id:leased.job.id,lease_token:leased.job.lease_token,state:'confirmed',evidence_hash:'11'.repeat(32)});
+  check((await workerRaw(again,workerMac(again))).error==='stale_lease','accepted lease cannot confirm twice');
+  await as(tourist);
+  check((await statusRpc()).error===undefined,'traveler can read own pending counts');
+  await admin();
+  check((await db.query("select 1 from private.audit_events where action='activity_confirmed' and entity_id=$1",[leased.job.id])).rows.length===1,'delivery transition audited exactly once');
+  check(await denied('delete from private.activity_outbox'),'publishing source is immutable even for trusted SQL');
+
   console.log(`\n${checks} database assertions passed (embedded PostgreSQL; not hosted Supabase).`);
 } finally {
   await db.close();

@@ -8,6 +8,8 @@ export default async function Privacy() {
       <PageIntro title={t('privacy')} body={t('appUi.privacyIntro')} icon={ShieldCheck} />
       <div className="privacy-paper">
         <p>{t('privacyBody')}</p>
+        <h2>{t('chainActivity.title')}</h2>
+        <p>{t('chainActivity.consent')}</p>
       </div>
     </section>
   );

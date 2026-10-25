@@ -2,6 +2,8 @@ import type { NextConfig } from 'next';
 import createNextIntlPlugin from 'next-intl/plugin';
 const config: NextConfig = {
   poweredByHeader: false,
+  // Server Function arguments include authentication tokens and signed transactions.
+  logging: { serverFunctions: false },
   async headers() {
     return [
       {
