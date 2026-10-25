@@ -1132,22 +1132,6 @@
     "onChainExploration": "Self-reported stamps on Stellar",
     "onChainPurchases": "Purchases recorded on Stellar"
   },
-  "merchantServices": {
-    "activityTitle": "Passport activity",
-    "kinds": {
-      "0": "Passport registration",
-      "1": "Destination pass purchase",
-      "2": "QR stamp",
-      "4": "Service purchase and stamp",
-      "5": "Self-reported exploration stamp"
-    },
-    "states": {
-      "pending": "Pending on Stellar",
-      "confirmed": "Recorded on Stellar"
-    },
-    "transaction": "View contract transaction",
-    "receipt": "View payment receipt"
-  },
   "agentPurchase": {
     "title": "Authorize an agent purchase",
     "description": "Let your travel agent pay for one destination pass on Stellar testnet.",
@@ -1189,5 +1173,74 @@
       "revoked": "Revoked",
       "expired": "Expired"
     }
+  },
+  "merchantCheckin": {
+    "title": "Visit check-in",
+    "body": "Create a visit stamp and issue a QR code for travelers to scan.",
+    "create": "Create check-in point",
+    "venueName": "Check-in point name",
+    "stampName": "Visit stamp name"
+  },
+  "exploration": {
+    "collect": "Collect Stamp",
+    "scan": "Scan QR Code",
+    "claim": "Claim Stamp",
+    "close": "Close",
+    "note": "Save a self-reported exploration stamp. No purchase required. It will be published to Stellar without reputation.",
+    "collected": "Stamp collected",
+    "open": "Open passport",
+    "progress": "{count} of {total} exploration stamps collected",
+    "label": "Self-reported exploration",
+    "merchants": "Merchants",
+    "directoryTitle": "Explore the merchant directory",
+    "directoryBody": "Browse businesses and places across all destinations. Listed places are discovery references; only participating merchants can issue verified QR stamps.",
+    "empty": "No merchants match your search. Try another name or destination.",
+    "search": "Search merchants",
+    "destination": "All destinations",
+    "submit": "Search",
+    "unconfigured": "The live merchant directory is unavailable until the database is configured.",
+    "results": "{count} merchants and places",
+    "signin": "Sign in to collect this stamp",
+    "unavailable": "Stamp collection is unavailable. Please try again later."
+  },
+  "merchantServices": {
+    "title": "Merchant services",
+    "buy": "Buy service",
+    "acquired": "Acquired",
+    "publish": "Publish service",
+    "publishBody": "Publish a service and its purchase stamp using your connected payout wallet. Set a testnet price between 25 and 150 USDC.",
+    "name": "Service name",
+    "stamp": "Purchase stamp name",
+    "venue": "Participating location",
+    "retire": "Stop new purchases",
+    "empty": "Online purchases are not available for this listing yet.",
+    "network": "Testnet USDC only. No real-world booking or availability is confirmed by this payment.",
+    "award": "A confirmed first purchase adds a passport stamp and 80 reputation.",
+    "offers": "Services available to buy",
+    "purchaseStamp": "Service purchase stamp",
+    "explorationNote": "Direct claims are self-reported exploration stamps. They are published to Stellar without reputation.",
+    "activityTitle": "Passport activity",
+    "transaction": "View contract transaction",
+    "receipt": "View payment receipt",
+    "kinds": {
+      "0": "Passport registration",
+      "1": "Destination pass purchase",
+      "2": "QR stamp",
+      "4": "Service purchase and stamp",
+      "5": "Self-reported exploration stamp"
+    },
+    "states": {
+      "pending": "Pending on Stellar",
+      "confirmed": "Recorded on Stellar"
+    },
+    "unavailable": "Service checkout is being set up. Purchases are unavailable right now.",
+    "errors": {
+      "already_owned": "You have already acquired this service. Open your passport to view the receipt.",
+      "forbidden": "Only the merchant owner or manager can manage this service.",
+      "wallet_required": "A configured Stellar testnet wallet is required before continuing.",
+      "self_payment": "Merchant accounts cannot purchase their own services."
+    },
+    "platformService": "CityPassport digital service",
+    "platformScope": "Purchase a CityPassport service record and stamp for this place. Venue admission and third-party services are not included."
   }
 }

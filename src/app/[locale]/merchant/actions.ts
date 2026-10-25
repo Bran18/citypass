@@ -24,7 +24,9 @@ export async function merchantAction(
     if (!parsed.success) return { error: 'invalid' };
     if (!(await session())) return { error: 'unauthorized' };
     const db = await createClient();
-    const { data, error } = await db.rpc('checkout_command', { action, payload: parsed.data });
+    const { data, error } = action === 'checkin'
+      ? await db.rpc('merchant_checkin_command', { payload: parsed.data })
+      : await db.rpc('checkout_command', { action, payload: parsed.data });
     if (error || !data || typeof data !== 'object' || Array.isArray(data))
       return { error: 'unavailable' };
     if (typeof data.error === 'string') return { error: data.error };

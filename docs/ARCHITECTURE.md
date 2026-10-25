@@ -50,6 +50,10 @@ Pollar signs; the server builds and verifies. Checkout is currently a classic **
 
 A pass receipt transaction also inserts one immutable holding and +80 reputation. Uniqueness prevents duplicate receipt use and repeated destination ownership. Reputation is separate from the planned spendable loyalty ledger. Submitted/unknown transactions award nothing and remain recoverable. See [Stellar flow](STELLAR_INTEGRATION.md) and [checkout contract](API_REFERENCE.md).
 
+## Agent purchase rail
+
+The optional x402 testnet API uses a separate, short-lived traveler-authorized capability for one pass and one agent payer. It freezes the beneficiary wallet, persists a signed SAC transfer before facilitator settlement, independently verifies chain success and the exact original authorization, then uses the existing receipt fulfillment transaction. Unknown settlement outcomes block replacement charges; recovery can bind only a proven original transaction. Private tables have RLS and no client grants; public invoker wrappers require a live owner session or domain-separated backend proof plus the purchase capability. This rail is enabled in the user-approved local development setup; the migration and hosted denial/replay checks passed, while a funded agent purchase remains unverified. Fixed USDC offers do not use Reflector conversion. See [x402 operations](X402.md).
+
 ## Private hotel data and QR capabilities
 
 Hotel membership scopes every reservation/submission read and mutation. Guests have no reservation lookup endpoint: a one-time invitation plus matching email permits submission only. Tokens are high-entropy secrets carried in URL fragments and stored as hashes. Reissue revokes earlier links. Submission consumes the invitation and advances the reservation atomically. Retention cleanup is a manual script, not a scheduled service.
@@ -62,7 +66,7 @@ Stamp claims lock the account limiter and QR credential, then verify participati
 - **Stellar SDK/RPC/Horizon:** current payment construction, account/trustline preflight, broadcast, and independent confirmation.
 - **Reflector:** installed dependency only; no current oracle read or FX conversion. [Integration plan](REFLECTOR_INTEGRATION.md).
 - **Swaps:** Pollar-managed configured venues; no direct Soroswap SDK integration or automatic swap-to-checkout flow. [Swap guide](SWAPPING.md).
-- **Passport activity contract:** separate undeployed prototype; no worker, issuer signer, generated binding, or application invocation. Database activation does not publish wallet activity.
+- **Passport activity contract:** deployed testnet contract (SDK 29.0.1), issuer-sponsored registration and automatic publishing from a private transactional outbox. The Node app starts a durable worker, authenticated by a fresh HMAC and coordinated through a global database lease. The passport reads confirmed reputation/stamp totals from Stellar and automatically refreshes pending activity. PostgreSQL remains responsible for source acceptance, pass holdings and private workflows; its reputation journal is not the displayed chain reputation. See [operations](ACTIVITY_CONTRACT.md).
 
 ## Delivery and verification
 

@@ -1,3 +1,6 @@
+import { CollectStamp } from '@/components/collect-stamp';
+import { getExplorationClaims } from '@/lib/exploration-server';
+import { session } from '@/lib/supabase/server';
 import Link from 'next/link';
 import { DestinationPlaceArt } from '@/components/destination-place-art';
 import { getTranslations } from 'next-intl/server';
@@ -32,7 +35,15 @@ export async function DestinationGuide({
 }) {
   const guide = getDestinationGuide(slug);
   if (!guide) return null;
-  const t = await getTranslations('destinationGuide');
+  const [t, collectionText, claims, user] = await Promise.all([
+    getTranslations('destinationGuide'),
+    getTranslations('exploration'),
+    getExplorationClaims(),
+    session(),
+  ]);
+  const collected = new Set(
+    claims.filter((claim) => claim.guide_slug === slug).map((claim) => claim.item_id),
+  );
   const { category, q } = parseGuideFilters(filters);
   const categories = [...new Set(guide.items.map((item) => item.category))];
   const items = guide.items.filter(
@@ -59,6 +70,17 @@ export async function DestinationGuide({
           <p>{t('intro')}</p>
         </div>
       </div>
+      <p role="status">
+        {collectionText('progress', { count: collected.size, total: guide.items.length })}
+      </p>
+      <progress
+        value={collected.size}
+        max={guide.items.length}
+        aria-label={collectionText('progress', {
+          count: collected.size,
+          total: guide.items.length,
+        })}
+      />
       <nav className="filters" aria-label={t('filters')}>
         <Link
           href={href('')}
@@ -117,6 +139,14 @@ export async function DestinationGuide({
                     {t('source', { source: t(`cities.${slug}.source`) })}
                     <ArrowUpRight size={15} aria-hidden="true" />
                   </a>
+                  <CollectStamp
+                    locale={locale}
+                    slug={slug}
+                    itemId={item.id}
+                    title={t(`cities.${slug}.items.${item.id}.title`)}
+                    collected={collected.has(item.id)}
+                    signedIn={Boolean(user)}
+                  />
                 </div>
               </article>
             </li>

@@ -279,3 +279,38 @@ Reviewed the working-tree routes, server actions, payment/session adapters, migr
 This update is documentation-only. No application code, dependency, migration, remote configuration, payment, swap, deployment, or user data was changed. Previous test counts are retained as dated evidence, not claimed as new executions. Validation for this edit is Markdown formatting plus internal link and referenced source-path checks; full functional suites, hosted authorization, and funded flows were not rerun.
 
 Documentation checks passed: Prettier formatting for all edited guides; 123 relative links across 32 Markdown files; 33 explicit source references in the new architecture/integration/flow guides; and `git diff --check` for README/docs. All 14 migration inventory filenames also resolve to the 14 checked-in migrations. Additional product/operations edits were included in the final repeated documentation checks. No functional suite was run.
+
+
+## Stellar activity deployment and application adapter — 2026-10-25
+
+- User-authorized deployment to Stellar testnet succeeded: contract `CAMNGYB64TCHHHQGYHZZ27ZIRRFDN6PMDMSLIVXMBIZGBBI7YAZMZ54H`, protocol 29, SDK 29.0.1, optimized WASM 5,819 bytes. Public hashes and deployment transactions are in `contracts/passport-activity/testnet-deployment.json`.
+- Final app SDK read confirmed the configured issuer matches the deployed issuer. No application traveler was activated or synthetic activity published to this instance.
+- Separate live fixture `CBIHW5DNMCQDHGJFQRRNBGM5FVQRANLWLJD44APJKVKLK5JBNCTNSPM2` passed wallet-signed activation via the app verifier, issuer delivery, response-loss recovery, actual on-chain replay, unauthorized issuer denial and conflicting replay denial. The initial rehearsal assertion incorrectly treated a typed contract error as a rejected construction promise; corrected to inspect the SDK Result. No application DB fixture was created.
+- Four native Rust tests passed. TypeScript and 80 unit tests passed, including tampered envelopes, wrong signers/network, unsupported methods, fee caps, source/session checks and partial-delivery recovery. All 308 existing embedded PostgreSQL assertions passed, including source RLS, replay and cross-tenant denial.
+- General desktop/mobile browser suite: 108 passed and 8 configuration-dependent skips on isolated port 3017. Four additional focused desktop/mobile cases passed for anonymous/forged-session publishing denial and the new privacy disclosure in ES/EN/PT.
+- Webpack production build passed. Next.js repeatedly interrupted the first build after changes for an existing security-upgrade notice; rerunning completed. This task does not upgrade Next.js. Turbopack's existing worker-port restriction remains documented.
+- Browser static output scan checked the actual issuer, activity hash, Pollar server and bridge secrets without printing them: no values found in 71 static files. `.env.local`, dedicated issuer identity and fixture keys are ignored; secret files have mode 600.
+- Disabled Next.js development Server Function argument logging after observing that the default includes sensitive action arguments. No token or signed payload is reproduced here. This prevents future argument logs; it does not erase prior local terminal history.
+- Real Pollar traveler activation/publishing in the browser remains pending Google/Pollar sign-in and wallet approval. Local testnet credentials exist through the legacy publishable-key fallback; browser signing was not automated or bypassed. Mainnet, application deployment, production custody, unattended delivery, archival rehearsal and independent-connection concurrency remain unverified.
+
+See [activity operations](ACTIVITY_CONTRACT.md) for configuration, recovery, pause/rotation and the isolated integration command.
+
+
+## Automatic passport correction — 2026-10-25
+
+Supersedes the manual activation/sync verification above. Current deployment and source hashes are in the manifest and ACTIVITY_CONTRACT.md. Issuer-sponsored passport registration requires no traveler signature; first receipt/stamp can initialize counters atomically. The UI reads confirmed chain reputation with automatic pending refresh.
+
+The explicitly approved Iguapass development migration backfilled 2 verified profiles and 2 real pass holdings. Two independent hosted worker calls obtained only one lease; a wrong lease was denied, and the valid probe lease was released for retry without confirming or publishing anything. The real automatic worker subsequently completed all four jobs. Direct contract read returned reputation `160`, purchases `2`, stamps `0`, redemptions `0` for the existing purchaser wallet. No new purchase, payment or synthetic app event was made.
+
+An isolated fixture of the revised WASM passed sponsored registration, issuer publishing, accepted-event recovery, real on-chain replay, unauthorized issuer denial and changed-replay denial. Four native Rust tests, TypeScript, 67 unit tests, 325 embedded PostgreSQL assertions and 112 browser cases passed; 8 optional browser cases skipped. Browser test servers disabled the real publisher. Webpack compilation/build passed after the existing Next.js upgrade reminder; the security upgrade remains separate work. Existing real-user browser checkout and QR business acceptance are not re-proven by these queue tests.
+
+
+## 2026-10-25 — x402 development rail
+
+The user explicitly approved the x402 migration on Iguapass `wafunogjrczlwvdnvyfs` and local testnet activation. Applied `20261025214214_x402_pass_purchases.sql`; enabled `X402_ENABLED=1`. No identities, offers, prices or recipient wallets were changed. Migration history generated by the connector may use its own timestamp; the local CLI-generated filename is retained.
+
+Typecheck, 84 unit tests, 358 embedded PostgreSQL assertions, Webpack production build and 122 desktop/mobile browser checks passed (2 optional demo skips). Browser suite used isolated port 3017 with the actual migrated destination registry and published testnet pilot offers; it did not complete Pollar OAuth or a funded transaction. The application and activity worker were restarted on port 3000 afterwards.
+
+`npm run test:x402:connected` passed hosted HTTP anonymous authorization denial, forged backend evidence denial, wrong-capability denial, nonce replay rejection and the facilitator's live Stellar testnet sponsored-payment advertisement. Database catalog inspection confirmed RLS on both private x402 tables, no anonymous/authenticated table privileges, invoker public wrappers and denied classic-helper execution. No real user/profile lookup or mutation was needed. Only transient security nonces were written by these checks.
+
+Dedicated testnet agent account `GB5YIP5CO7573MYUDX4EMWZMPXY5L4NORJIDRB3O6FYT3PYT5V4XBTHK` was created with a protected ignored key file, funded by Friendbot and given the official testnet USDC trustline. It has not been funded with USDC or used to buy a pass. Funded facilitator settlement, authenticated hosted multi-user browser coverage, independent-connection concurrency and fully automatic unknown-hash reconciliation remain pending. Mainnet/production deployment was not performed. See [x402 operations](X402.md).

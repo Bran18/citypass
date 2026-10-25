@@ -1132,22 +1132,6 @@
     "onChainExploration": "Carimbos autodeclarados na Stellar",
     "onChainPurchases": "Compras registradas na Stellar"
   },
-  "merchantServices": {
-    "activityTitle": "Atividade do passaporte",
-    "kinds": {
-      "0": "Registro do passaporte",
-      "1": "Compra de passe de destino",
-      "2": "Carimbo QR",
-      "4": "Compra de serviço e carimbo",
-      "5": "Carimbo de exploração autodeclarado"
-    },
-    "states": {
-      "pending": "Pendente na Stellar",
-      "confirmed": "Registrado na Stellar"
-    },
-    "transaction": "Ver transação do contrato",
-    "receipt": "Ver comprovante de pagamento"
-  },
   "agentPurchase": {
     "title": "Autorizar uma compra por agente",
     "description": "Permita que seu agente de viagens pague um passe de destino na Stellar testnet.",
@@ -1189,5 +1173,74 @@
       "revoked": "Revogada",
       "expired": "Expirada"
     }
+  },
+  "merchantCheckin": {
+    "title": "Registro de visita",
+    "body": "Crie um carimbo de visita e emita um código QR para os viajantes.",
+    "create": "Criar ponto de visita",
+    "venueName": "Nome do ponto de visita",
+    "stampName": "Nome do carimbo"
+  },
+  "exploration": {
+    "collect": "Colecionar carimbo",
+    "scan": "Ler código QR",
+    "claim": "Resgatar carimbo",
+    "close": "Fechar",
+    "note": "Guarde um carimbo de exploração autodeclarado. Não exige compra. Será publicado na Stellar sem reputação.",
+    "collected": "Carimbo colecionado",
+    "open": "Abrir passaporte",
+    "progress": "{count} de {total} carimbos de exploração colecionados",
+    "label": "Exploração autodeclarada",
+    "merchants": "Comércios",
+    "directoryTitle": "Explore o diretório de comércios",
+    "directoryBody": "Descubra comércios e lugares de todos os destinos. Os lugares listados são referências; apenas comércios participantes podem emitir carimbos QR verificados.",
+    "empty": "Nenhum comércio corresponde à pesquisa. Experimente outro nome ou destino.",
+    "search": "Pesquisar comércios",
+    "destination": "Todos os destinos",
+    "submit": "Pesquisar",
+    "unconfigured": "O diretório de comércios fica disponível após configurar a base de dados.",
+    "results": "{count} comércios e lugares",
+    "signin": "Inicie sessão para colecionar este carimbo",
+    "unavailable": "Não foi possível colecionar o carimbo. Tente novamente mais tarde."
+  },
+  "merchantServices": {
+    "title": "Serviços dos comércios",
+    "buy": "Comprar serviço",
+    "acquired": "Adquirido",
+    "publish": "Publicar serviço",
+    "publishBody": "Publique um serviço e seu carimbo de compra com a carteira de recebimento conectada. Defina um preço de teste entre 25 e 150 USDC.",
+    "name": "Nome do serviço",
+    "stamp": "Nome do carimbo de compra",
+    "venue": "Local participante",
+    "retire": "Parar novas compras",
+    "empty": "Esta referência ainda não tem compras online disponíveis.",
+    "network": "Apenas USDC de testnet. O pagamento não confirma reserva ou disponibilidade no mundo real.",
+    "award": "A primeira compra confirmada adiciona um carimbo ao passaporte e 80 de reputação.",
+    "offers": "Serviços para comprar",
+    "purchaseStamp": "Carimbo de compra de serviço",
+    "explorationNote": "Resgates diretos são carimbos de exploração autodeclarados. São publicados na Stellar sem reputação.",
+    "activityTitle": "Atividade do passaporte",
+    "transaction": "Ver transação do contrato",
+    "receipt": "Ver comprovante de pagamento",
+    "kinds": {
+      "0": "Registro do passaporte",
+      "1": "Compra de passe de destino",
+      "2": "Carimbo QR",
+      "4": "Compra de serviço e carimbo",
+      "5": "Carimbo de exploração autodeclarado"
+    },
+    "states": {
+      "pending": "Pendente na Stellar",
+      "confirmed": "Registrado na Stellar"
+    },
+    "unavailable": "Os pagamentos de serviços estão sendo configurados. As compras não estão disponíveis agora.",
+    "errors": {
+      "already_owned": "Você já adquiriu este serviço. Abra seu passaporte para ver o comprovante.",
+      "forbidden": "Apenas o proprietário ou gerente do comércio pode gerenciar este serviço.",
+      "wallet_required": "É necessário configurar uma carteira Stellar testnet para continuar.",
+      "self_payment": "Contas do comércio não podem comprar seus próprios serviços."
+    },
+    "platformService": "Serviço digital CityPassport",
+    "platformScope": "Compre um registro de serviço e um carimbo CityPassport para este lugar. Não inclui ingressos nem serviços de terceiros."
   }
 }

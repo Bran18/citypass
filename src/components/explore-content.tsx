@@ -1,3 +1,4 @@
+import { ServiceOffers } from '@/components/payments/service-offers';
 import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 import {
@@ -68,6 +69,9 @@ export default async function Explore({
           <h1>{t('heroTitle')}</h1>
           <p className="lead">{t('heroBody')}</p>
           <div className="hero-actions">
+            <Link className="button outline" href={`/${locale}/merchants`}>
+              {t('exploration.merchants')}
+            </Link>
             <PassportCta locale={locale} className="button primary">
               <ArrowRight size={17} />
             </PassportCta>
@@ -195,6 +199,7 @@ export default async function Explore({
                 </span>
                 <h3>{place.name}</h3>
                 <p>{place.description[locale] ?? place.description.es}</p>
+                <ServiceOffers locale={locale} venueId={place.id} />
                 {(place.address || place.phone || place.email) && (
                   <details className="directory-contact">
                     <summary>{t('directory.contact')}</summary>

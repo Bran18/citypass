@@ -88,14 +88,14 @@ Pass purchases start already prepared. `NOT_FOUND` does not prove failure. The p
 
 There is no background reconciliation worker. Stellar RPC keeps bounded history, so old unknown submissions need an explicit operational investigation and potentially a longer-history source. Do not manufacture receipt evidence or issue a replacement charge based on a missing lookup. [Stellar's transaction lookup reference](https://developers.stellar.org/docs/data/apis/rpc/api-reference/methods/getTransaction) documents statuses, timestamp encoding, and retention.
 
-## Activity contract prototype
+## Testnet activity contract
 
-`contracts/passport-activity/src/lib.rs` is a separate Soroban prototype, not the payment recipient or current source of passport state.
+`contracts/passport-activity/src/lib.rs` is deployed on Stellar testnet. It automatically records verified passport activity and is the displayed reputation authority. It is not the USDC payment recipient.
 
 | Method                     | Authority and behavior                                               |
 | -------------------------- | -------------------------------------------------------------------- |
 | `__constructor(issuer)`    | Sets trusted attester and initial pause state                        |
-| `activate(user)`           | User authorization; initializes public activity counters             |
+| `register(user)`           | Issuer authorization; initializes public passport counters             |
 | `set_paused(paused)`       | Issuer authorization; gates new attestations                         |
 | `record(event_id, record)` | Issuer authorization, active user, replay/conflict/collection checks |
 | `activity(user)`           | Reads stored counters                                                |
@@ -103,8 +103,8 @@ There is no background reconciliation worker. Stellar RPC keeps bounded history,
 
 Record kind 1 adds 80 reputation and one purchase per wallet/destination; kind 2 counts a unique stamp without awarding reputation; kind 3 counts a completed redemption subject, without funding or executing redemption. Identical event replay is harmless; conflicting reuse and duplicate collections fail. TTL extensions occur on writes/retries; archived entries require restoration. No email, guest data, raw token, or personal payload belongs in an attestation.
 
-Local tests/builds are recorded in [destination passes](DESTINATION_PASSES.md). No deployment, application binding, issuer signer, outbox/worker, wallet activation transaction, or database/chain reconciliation exists. A future implementation needs explicit public-activity consent, network compatibility review, durable idempotent delivery, key custody, archival monitoring, and acceptance testing. App passport activation currently publishes nothing on-chain.
+The revised automatic contract was deployed on 2026-10-25 with SDK 29.0.1 on protocol 29. A private transactional outbox queues verified Pollar profiles, confirmed holdings and accepted stamp claims. The app starts an issuer-funded publisher with signed RPC commands, exclusive database leases, replay protection, fee caps and automatic retries. The passport reads contract counters and shows pending/unavailable state without substituting database awards. No activation prompt or manual sync exists. Two real existing purchases were automatically confirmed as 160 reputation. See [operations](ACTIVITY_CONTRACT.md).
 
 ## Evidence and remaining work
 
-The 2026-10-17 verification log records a funded Pollar fee-sponsored pass payment, successful independent settlement, recovered receipt, one holding, and +80 reputation. Later passport inspection records two holdings/160 reputation. Those are historical observations, not new balance assertions. Mainnet, funded swaps, multi-user acceptance, independent-connection races, refunds/reversals, and unattended operations remain separate gates. No chain transaction was submitted for this documentation update.
+The 2026-10-17 verification log records a funded Pollar fee-sponsored pass payment, successful independent settlement, recovered receipt, one holding, and +80 reputation. Later passport inspection records two holdings/160 reputation. Those are historical observations, not new balance assertions. Mainnet, funded swaps, multi-user acceptance, independent-connection races, refunds/reversals, and unattended operations remain separate gates. The activity deployment and isolated testnet verification are recorded separately in [activity operations](ACTIVITY_CONTRACT.md).

@@ -1,3 +1,4 @@
+import { testMerchantServices } from './test-services-db';
 import { testX402Database } from './test-x402-db';
 import { PGlite } from '@electric-sql/pglite';
 import { readFile, readdir } from 'node:fs/promises';
@@ -2085,6 +2086,35 @@ try {
   check((await db.query("select 1 from private.audit_events where action='activity_confirmed' and entity_id=$1",[leased.job.id])).rows.length===1,'delivery transition audited exactly once');
   check(await denied('delete from private.activity_outbox'),'publishing source is immutable even for trusted SQL');
 
+  // Self-reported exploration never enters the verified QR/chain award tables.
+  const explorationRpc = async (slug: string, item: string) => (await db.query<{r: {error?: string; id?: string}}>(
+    'select public.claim_exploration($1,$2) r', [slug,item])).rows[0].r;
+  await as(null);
+  check((await explorationRpc('lisbon','alfama')).error==='unauthorized','anonymous direct claim denied');
+  await as(tourist);
+  check((await explorationRpc('lisbon','invented')).error==='invalid','unknown exploration activity denied');
+  check((await explorationRpc('porto','alfama')).error==='invalid','cross-city exploration substitution denied');
+  const directClaim = await explorationRpc('lisbon','alfama');
+  check(Boolean(directClaim.id),'direct claim persists without payment or QR');
+  check((await explorationRpc('lisbon','alfama')).error==='already_claimed','direct claim replay cannot award twice');
+  check((await db.query('select * from public.exploration_claims')).rows.length===1,'traveler reads own exploration stamp');
+  check(await denied("insert into public.exploration_claims(user_id,destination_id,guide_slug,item_id) select user_id,destination_id,guide_slug,'belem' from public.exploration_claims"),'client cannot write exploration claims directly');
+  check(await denied('delete from public.exploration_claims'),'client cannot erase exploration history');
+  await as('30000000-0000-4000-8000-000000000098');
+  check((await db.query('select * from public.exploration_claims')).rows.length===0,'other traveler cannot read exploration stamp');
+  check(Boolean((await explorationRpc('porto','saoBento')).id),'first exploration claim activates a new traveler');
+  check((await db.query('select * from public.traveler_profiles')).rows.length===1,'first direct claim creates only the current traveler identity');
+  await db.exec('set role authenticated');
+  check((await db.query('select * from public.exploration_claims')).rows.length===1,'authenticated role also scopes stamps to current actor');
+  check(await denied("update public.exploration_claims set item_id='alfama'"),'authenticated client cannot alter claims');
+  await as(null);
+  check((await db.query('select * from public.exploration_claims')).rows.length===0,'anonymous cannot read exploration stamps');
+  await admin();
+  check((await db.query("select 1 from private.audit_events where action='claim_exploration' and entity_id=$1",[directClaim.id])).rows.length===1,'direct exploration audited once');
+  check((await db.query('select 1 from private.activity_outbox where source_id=$1 and kind=5',[directClaim.id])).rows.length===1,'self-reported exploration queues its distinct chain event');
+  check((await db.query('select 1 from private.activity_outbox where source_id=$1 and kind in (1,2,4)',[directClaim.id])).rows.length===0,'self-reported exploration cannot claim paid or QR activity');
+
+  checks += await testMerchantServices(db, bridgeKey);
   checks += await testX402Database(db, bridgeKey, passOffer);
   console.log(`\n${checks} database assertions passed (embedded PostgreSQL; not hosted Supabase).`);
 } finally {

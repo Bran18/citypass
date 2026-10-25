@@ -1,3 +1,9 @@
+export type MerchantServiceRow = {
+ id:string; organization_id:string; destination_id:string; venue_id:string|null; reference_venue_id:string|null; seller_source:'merchant'|'citypass'; name:string; stamp_name:string; amount:string; published:boolean; created_at:string;
+};
+export type ServiceAcquisitionRow = {
+ id:string; user_id:string; service_id:string; request_id:string; destination_id:string; service_name:string; stamp_name:string; acquired_at:string;
+};
 export type Json =
   | string
   | number
@@ -14,8 +20,19 @@ export type Database = {
   }
   public: {
     Tables: {
+      merchant_services: { Row: MerchantServiceRow; Insert: MerchantServiceRow; Update: Partial<MerchantServiceRow>; Relationships: [] }
+      merchant_service_acquisitions: { Row: ServiceAcquisitionRow; Insert: ServiceAcquisitionRow; Update: Partial<ServiceAcquisitionRow>; Relationships: [] }
+
+      exploration_claims: {
+        Row: { id: string; user_id: string; destination_id: string; guide_slug: string; item_id: string; claimed_at: string }
+        Insert: { id?: string; user_id: string; destination_id: string; guide_slug: string; item_id: string; claimed_at?: string }
+        Update: { id?: string; user_id?: string; destination_id?: string; guide_slug?: string; item_id?: string; claimed_at?: string }
+        Relationships: []
+      }
+
       checkout_requests: {
         Row: {
+          merchant_service_id: string | null
           amount: string
           asset_code: string
           asset_issuer: string
@@ -828,6 +845,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      merchant_service_command: { Args: {action:string;payload:Json}; Returns: Json }
+
+      claim_exploration: { Args: { guide_slug: string; item_id: string }; Returns: Json }
+
+      x402_order_command: { Args: { action: string; payload: Json }; Returns: Json }
+      x402_delivery: { Args: { payload: string; mac: string }; Returns: Json }
+
+      merchant_checkin_command: { Args: { payload: Json }; Returns: Json }
+      activity_worker_command: { Args: { payload: string; mac: string }; Returns: Json }
+      passport_activity_status: { Args: { contract_id: string }; Returns: Json }
       destination_pass_command: { Args: { action: string; payload: Json }; Returns: Json }
 
       checkout_command: {

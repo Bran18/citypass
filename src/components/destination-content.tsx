@@ -1,3 +1,4 @@
+import { ServiceOffers } from '@/components/payments/service-offers';
 import { DestinationPass } from '@/components/destination-pass';
 import { DestinationGuide } from '@/components/destination-guide';
 import { getDestinationGuide } from '@/lib/destination-guides';
@@ -68,6 +69,9 @@ export default async function DestinationContent({
                 })}
           </p>
           <div className="hero-actions">
+            <Link className="button outline" href={`/${locale}/merchants`}>
+              {t('exploration.merchants')}
+            </Link>
             <Link className="button primary" href={`/${locale}/passport`}>
               <BookOpen size={18} />
               {t('travelDesign.open')}
@@ -141,6 +145,7 @@ export default async function DestinationContent({
                   <li key={place.id}>
                     <h3>{place.name}</h3>
                     <p>{localizedText(place.description, locale)}</p>
+                    <ServiceOffers locale={locale} venueId={place.id} />
                     {place.source_url ? (
                       <a href={place.source_url} target="_blank" rel="noopener noreferrer">
                         {t('destinations.source')}

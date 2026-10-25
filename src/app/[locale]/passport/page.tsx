@@ -1,3 +1,4 @@
+import { getExplorationClaims } from '@/lib/exploration-server';
 import { getPassAccount } from '@/lib/passes/server';
 import { reputationTier } from '@/lib/passes/validation';
 import { transactionExplorerUrl } from '@/lib/payments/explorer';
@@ -24,20 +25,21 @@ import { StampDetail } from '@/components/experience/stamp-detail';
 import { PassportPreview } from '@/components/experience/passport-preview';
 import { PassportStampBook } from '@/components/experience/passport-stamp-book';
 import { passportStampPages } from '@/lib/passport-pages';
-import { x402Enabled } from '@/lib/x402/server';
 import { ActivityPanel } from '@/components/activity-panel';
+import { x402Enabled } from '@/lib/x402/server';
 import { getPassportChainState } from '@/lib/activity/server';
 export default async function Passport({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
-  const [t, user, selected, passAccount, chainState] = await Promise.all([
+  const [t, user, selected, passAccount, chainState, explorationClaims] = await Promise.all([
     getTranslations(),
     session(),
     getSelectedDestination(),
     getPassAccount(),
     getPassportChainState(),
+    getExplorationClaims(),
   ]);
   const db = user ? await createClient() : null;
-  const [travelerResult, claimsResult, directory] = db
+  const [travelerResult, claimsResult, directory, servicesResult] = db
     ? await Promise.all([
         db.from('traveler_profiles').select('id,created_at').eq('user_id', user!.id).maybeSingle(),
         db
@@ -45,11 +47,33 @@ export default async function Passport({ params }: { params: Promise<{ locale: s
           .select('id,claimed_at,stamp_definitions(name),destination_id')
           .order('claimed_at', { ascending: false }),
         getDestinationDirectory(),
+        db
+          .from('merchant_service_acquisitions')
+          .select('id,destination_id,stamp_name,service_name,acquired_at,request_id')
+          .order('acquired_at', { ascending: false }),
       ])
-    : [null, null, null];
+    : [null, null, null, null];
   if (travelerResult?.error) throw new Error('data_unavailable');
   const passport = travelerResult?.data;
-  const claims = claimsResult ? checked(claimsResult) : [];
+  const servicesUnavailable = Boolean(servicesResult?.error);
+  const serviceAcquisitions = servicesResult && !servicesUnavailable ? checked(servicesResult) : [];
+  const claims = [
+    ...serviceAcquisitions.map((acquisition) => ({
+      id: acquisition.id,
+      destination_id: acquisition.destination_id,
+      claimed_at: acquisition.acquired_at,
+      stamp_definitions: { name: acquisition.stamp_name },
+    })),
+    ...(claimsResult ? checked(claimsResult) : []),
+    ...explorationClaims.map((claim) => ({
+      id: claim.id,
+      destination_id: claim.destination_id,
+      claimed_at: claim.claimed_at,
+      stamp_definitions: {
+        name: `${t(`destinationGuide.cities.${claim.guide_slug}.items.${claim.item_id}.title`)} (${t('exploration.label')})`,
+      },
+    })),
+  ].sort((a, b) => b.claimed_at.localeCompare(a.claimed_at));
   const destinations = new Map(
     directory?.destinations.map((destination) => [destination.id, destination]),
   );
@@ -256,6 +280,20 @@ export default async function Passport({ params }: { params: Promise<{ locale: s
         <div className="passport-pages" id="passport-account">
           {!user ? <AuthGate locale={locale} /> : null}
           {passport ? collection : null}
+          {servicesUnavailable ? <p role="status">{t('merchantServices.unavailable')}</p> : null}
+          {serviceAcquisitions.length ? (
+            <section className="passport-activity">
+              <h2>{t('merchantServices.acquired')}</h2>
+              <ul className="checkout-history">
+                {serviceAcquisitions.map((item) => (
+                  <li key={item.id}>
+                    <Link href={`/${locale}/checkout/${item.request_id}`}>{item.service_name}</Link>
+                    <span>{item.stamp_name}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
           {passAccount ? (
             <section className="passport-activity" aria-label={t('destinationPass.activity')}>
               <div className="passport-section-heading">

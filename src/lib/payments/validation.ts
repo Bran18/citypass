@@ -21,6 +21,8 @@ export const amountSchema = z
   });
 const address = z.string().regex(/^G[A-Z2-7]{55}$/);
 export const checkoutSchema = z.object({
+  merchant_service_id: z.uuid().nullable().optional(),
+  payout_source: z.enum(['merchant', 'citypass']).optional(),
   id: z.uuid(),
   organization_id: z.uuid(),
   destination_id: z.uuid(),
@@ -54,6 +56,12 @@ export const checkoutSchema = z.object({
 });
 export type Checkout = z.infer<typeof checkoutSchema>;
 export const merchantSchemas = {
+  checkin: z.object({
+    organization_id: z.uuid(),
+    command_id: z.uuid(),
+    venue_name: z.string().trim().min(2).max(120),
+    stamp_name: z.string().trim().min(2).max(120),
+  }),
   onboard: z.object({ name: z.string().trim().min(2).max(120), destination_id: z.uuid() }),
   payout: z.object({ organization_id: z.uuid() }),
   create: z.object({

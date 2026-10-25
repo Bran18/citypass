@@ -14,7 +14,7 @@ A multilingual travel passport for discovering destinations, collecting verified
 | Business tools     | Hotel reservations/pre-check-in, merchant onboarding/checkout, destination-scoped merchant review, and experience editing. Access requires the relevant database membership or assignment.                                               |
 | Wallet and swaps   | Pollar balance/receive/send/history views and configured swap venues. A quote was previously inspected; funded swap execution remains unverified.                                                                                        |
 | Reflector          | Client dependency installed; no runtime oracle adapter, feed configuration, or displayed oracle quote yet.                                                                                                                               |
-| On-chain activity  | Separate Rust prototype with recorded local tests; not deployed or connected to the app. Reputation currently lives in PostgreSQL.                                                                                                       |
+| On-chain activity  | Deployed testnet passport contract, issuer-sponsored registration and automatic durable publishing of verified purchases/stamps. Passport reputation is read from Stellar.                                                                                                       |
 
 Saved itineraries and reward interests are browser-local. Inquiry screens are retired (404); their private database records and RPC remain. Funded loyalty redemption, refunds, mainnet checkout, automatic route awards, and unattended reconciliation/retention jobs are not implemented. See the [documentation index](docs/README.md) for the complete map.
 
@@ -83,13 +83,15 @@ src/lib/                  Domain validation, data reads, session and Stellar ada
 messages/{es,en,pt}.json   All application-visible interface copy
 supabase/migrations/      Ordered schema, RLS, grants, transactional RPCs
 supabase/seed.sql          Sourced discovery catalog, not approved partners
-contracts/passport-activity/  Separate Soroban activity prototype
+contracts/passport-activity/  Stellar testnet activity contract
 scripts/                  Database tests, hosted checks, reviewed admin utilities
 tests/                   Unit and desktop/mobile browser coverage
 docs/                    Application, integration, security, and operations guides
 ```
 
 ## Documentation
+
+The optional [x402 agent purchase API](docs/X402.md) adds scoped testnet pass purchases for agents. It is enabled in the approved local development setup; a funded agent purchase remains unverified.
 
 Start with [application flows](docs/APPLICATION_FLOW.md), [architecture](docs/ARCHITECTURE.md), and the [integration inventory](docs/INTEGRATIONS.md).
 

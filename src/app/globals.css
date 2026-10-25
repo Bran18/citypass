@@ -6009,6 +6009,29 @@ select:focus-visible {
   .collected-passport-leaf { animation: none; }
 }
 
+.collect-stamp { margin-top: 1rem; }
+.collection-dialog { width: min(34rem, calc(100% - 2rem)); max-height: 90dvh; overflow: auto; padding: 2rem; border: 1px solid var(--line, #d3d9cf); border-radius: 1rem; color: inherit; background: var(--paper, #fff); }
+.collection-dialog::backdrop { background: rgb(0 0 0 / 55%); }
+.collection-dialog h2 { padding-right: 2rem; }
+.collection-dialog > p { margin: 1rem 0; }
+.collection-dialog form { margin-top: 1rem; }
+.collection-close { position: absolute; top: 1rem; right: 1rem; cursor: pointer; background: transparent; border: 0; color: inherit; }
+.destination-guide > progress { width: min(100%, 24rem); accent-color: var(--forest, #235c45); margin-bottom: 1.25rem; }
+
+.collection-dialog { margin: auto; }
+.collection-dialog > a { display: flex; width: fit-content; margin-top: 1rem; }
+.merchant-directory-search > div { display: grid; grid-template-columns: minmax(0, 1fr) minmax(10rem, .65fr) auto; }
+.merchant-directory-search input, .merchant-directory-search select { min-width: 0; width: 100%; }
+@media (max-width: 640px) {
+  .merchant-directory-search > div { grid-template-columns: minmax(0, 1fr); }
+}
+
+.merchant-service-list { margin-block: 1.25rem; }
+.merchant-service { border-top: 1px solid var(--border); padding-block: 1rem; }
+.merchant-service h3 { font-size: 1.2rem; }
+.merchant-service small { display: block; margin-top: .75rem; }
+.service-price-examples, .merchant-publish-service { border-top: 1px solid var(--border); margin-top: 2rem; padding-top: 1.5rem; }
+.service-price-examples ul { display: flex; flex-wrap: wrap; gap: .75rem 2rem; padding-left: 1rem; margin-block: 1rem; }
 .passport-chain-events { list-style: none; padding: 0; margin-block: 1rem; }
 .passport-chain-events li { display: flex; flex-wrap: wrap; align-items: baseline; gap: .5rem 1rem; border-top: 1px solid var(--border); padding-block: .75rem; }
 .passport-chain-events a { text-decoration: underline; }

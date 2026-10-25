@@ -61,11 +61,11 @@ The passport separates acquired passes from a purchase-history disclosure, which
 
 Wallet controls guard repeated clicks immediately and show signing/submission progress. A dropped broadcast/lookup response retains the durable submitted attempt. Check/retry reconciles or re-submits the stored envelope/hash; it never creates a replacement charge. Successful settlement within the deadline can be reconciled after the QR expires. There is no unattended reconciliation worker.
 
-## Separate on-chain prototype
+## Optional on-chain activity
 
-`contracts/passport-activity` contains a Rust prototype with pinned SDK 23.5.3 and Cargo lockfile. It has user-authorized activation, issuer-authorized attestations, purchase/stamp/redemption counters, fixed purchase reputation, tier computation, pause control, replay/conflict checks, and persistent TTL extensions. It does not execute payments, issue tokens, transfer reputation, or fund reward redemption.
+`contracts/passport-activity` contains the deployed testnet activity contract with pinned SDK 29.0.1 and Cargo lockfile. It has issuer-sponsored registration, issuer-authorized attestations, purchase/stamp/redemption counters, fixed purchase reputation, tier computation, pause control, replay/conflict checks, and persistent TTL extensions. It does not execute payments, issue tokens, transfer reputation, or fund reward redemption.
 
-Three native tests and an optimized WASM build are recorded in the earlier verification log. The contract is **not deployed or wired to the application**, has no issuer signer/worker or generated app binding, and does not synchronize database reputation. Future delivery requires explicit deployment approval, public-activity privacy consent, network compatibility, issuer custody, durable attestation/reconciliation, archival restoration, and funded acceptance. See [Stellar integration](STELLAR_INTEGRATION.md).
+The revised contract was deployed on 2026-10-25. Verified Pollar login queues registration automatically; confirmed receipts and accepted stamp claims queue issuer-paid attestations inside their database transactions. The Node app runs a leased, retrying publisher. No separate traveler signature or sync button exists. The passport displays contract reputation, pending status and automatic refresh; PostgreSQL retains verified ownership and its internal reputation journal. The approved existing two passes are confirmed on-chain as 160 reputation. See [operations](ACTIVITY_CONTRACT.md).
 
 ## Evidence and remaining gates
 
@@ -73,4 +73,4 @@ Embedded SQL tests cover fixed price/award, forged evidence, atomic receipt fulf
 
 The recorded funded 2026-10-17 fee-sponsored transaction settled 100 USDC at ledger 5248819. A runtime RPC timestamp representation mismatch initially left the checkout submitted. The adapter was corrected to strictly normalize decimal-text timestamps and require inner fee-bump success. The ordinary authenticated reconciliation path recovered one receipt/holding/+80 without another transaction or direct ledger write. Later real-browser inspection records two holdings/160 reputation. These observations do not establish independent-connection concurrency or all-user acceptance.
 
-The latest recorded general regression in [VERIFICATION.md](VERIFICATION.md) is TypeScript, 54 unit tests, 308 embedded SQL assertions, Webpack build, and 114 desktop/mobile cases with two optional demo skips. Those suites were not rerun for this documentation-only update. Independent hosted connections, multi-user business workflows, mainnet, refunds, actual benefits, funded rewards, unattended reconciliation, and on-chain synchronization remain pending.
+The latest recorded general regression in [VERIFICATION.md](VERIFICATION.md) is TypeScript, 54 unit tests, 308 embedded SQL assertions, Webpack build, and 114 desktop/mobile cases with two optional demo skips. Those suites were not rerun for this documentation-only update. Independent hosted connections, multi-user business workflows, mainnet, refunds, actual benefits, funded rewards, unattended reconciliation, and authenticated on-chain browser acceptance remain pending.

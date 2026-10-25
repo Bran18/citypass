@@ -28,3 +28,7 @@ Reviewed against the working tree on 2026-10-21. These guides document implement
 [Country design](COUNTRY_DESIGN.md) and [motion design](DESIGN_MOTION.md) describe visual decisions and accessibility. [Verification](VERIFICATION.md) records test evidence and limits. [Database connection](DATABASE_CONNECTION.md) preserves connection/migration history; use [development](DEVELOPMENT.md) for current setup. [CityPassport audit](CITYPASSPORT_AUDIT.md), [PRD](PRD.md), and older plan sections capture earlier assessments, not a promise that every proposal is implemented.
 
 When changing behavior, update the relevant feature guide and implementation plan together. New runtime integrations must include configuration, identity/network assumptions, failure behavior, authorization, test evidence, and unresolved acceptance gates. Never copy secrets, raw invitation/session tokens, guest data, or private operational payloads into documentation.
+
+- [Stellar testnet activity deployment and operations](ACTIVITY_CONTRACT.md)
+
+- [x402 agent purchases](X402.md): scoped testnet authorizations, settlement verification, agent CLI and recovery; development enabled; funded verification pending.

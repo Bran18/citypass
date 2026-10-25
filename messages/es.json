@@ -1132,22 +1132,6 @@
     "onChainExploration": "Sellos autodeclarados en Stellar",
     "onChainPurchases": "Compras registradas en Stellar"
   },
-  "merchantServices": {
-    "activityTitle": "Actividad del pasaporte",
-    "kinds": {
-      "0": "Registro del pasaporte",
-      "1": "Compra de pase de destino",
-      "2": "Sello QR",
-      "4": "Compra de servicio y sello",
-      "5": "Sello de exploración autodeclarado"
-    },
-    "states": {
-      "pending": "Pendiente en Stellar",
-      "confirmed": "Registrado en Stellar"
-    },
-    "transaction": "Ver transacción del contrato",
-    "receipt": "Ver comprobante de pago"
-  },
   "agentPurchase": {
     "title": "Autorizar una compra por agente",
     "description": "Permite que tu agente de viajes pague un pase de destino en Stellar testnet.",
@@ -1189,5 +1173,74 @@
       "revoked": "Revocada",
       "expired": "Vencida"
     }
+  },
+  "merchantCheckin": {
+    "title": "Registro de visita",
+    "body": "Crea un sello de visita y emite un código QR para los viajeros.",
+    "create": "Crear punto de visita",
+    "venueName": "Nombre del punto de visita",
+    "stampName": "Nombre del sello"
+  },
+  "exploration": {
+    "collect": "Coleccionar sello",
+    "scan": "Escanear código QR",
+    "claim": "Reclamar sello",
+    "close": "Cerrar",
+    "note": "Guarda un sello de exploración autodeclarado. No requiere compra. Se publicará en Stellar sin reputación.",
+    "collected": "Sello coleccionado",
+    "open": "Abrir pasaporte",
+    "progress": "{count} de {total} sellos de exploración coleccionados",
+    "label": "Exploración autodeclarada",
+    "merchants": "Comercios",
+    "directoryTitle": "Explora el directorio de comercios",
+    "directoryBody": "Descubre comercios y lugares de todos los destinos. Los lugares listados son referencias; solo los comercios participantes pueden emitir sellos QR verificados.",
+    "empty": "No hay comercios que coincidan. Prueba otro nombre o destino.",
+    "search": "Buscar comercios",
+    "destination": "Todos los destinos",
+    "submit": "Buscar",
+    "unconfigured": "El directorio de comercios no está disponible hasta configurar la base de datos.",
+    "results": "{count} comercios y lugares",
+    "signin": "Inicia sesión para coleccionar este sello",
+    "unavailable": "No se puede coleccionar el sello. Inténtalo más tarde."
+  },
+  "merchantServices": {
+    "title": "Servicios de comercios",
+    "buy": "Comprar servicio",
+    "acquired": "Adquirido",
+    "publish": "Publicar servicio",
+    "publishBody": "Publica un servicio y su sello de compra con tu billetera de cobro conectada. Define un precio de prueba entre 25 y 150 USDC.",
+    "name": "Nombre del servicio",
+    "stamp": "Nombre del sello de compra",
+    "venue": "Lugar participante",
+    "retire": "Detener nuevas compras",
+    "empty": "Esta referencia aún no tiene compras en línea disponibles.",
+    "network": "Solo USDC de testnet. El pago no confirma una reserva ni disponibilidad en el mundo real.",
+    "award": "La primera compra confirmada añade un sello al pasaporte y 80 de reputación.",
+    "offers": "Servicios para comprar",
+    "purchaseStamp": "Sello de compra de servicio",
+    "explorationNote": "Los sellos reclamados directamente son autodeclarados. Se publican en Stellar sin reputación.",
+    "activityTitle": "Actividad del pasaporte",
+    "transaction": "Ver transacción del contrato",
+    "receipt": "Ver comprobante de pago",
+    "kinds": {
+      "0": "Registro del pasaporte",
+      "1": "Compra de pase de destino",
+      "2": "Sello QR",
+      "4": "Compra de servicio y sello",
+      "5": "Sello de exploración autodeclarado"
+    },
+    "states": {
+      "pending": "Pendiente en Stellar",
+      "confirmed": "Registrado en Stellar"
+    },
+    "unavailable": "Se están configurando los pagos de servicios. Las compras no están disponibles por ahora.",
+    "errors": {
+      "already_owned": "Ya adquiriste este servicio. Abre tu pasaporte para ver el comprobante.",
+      "forbidden": "Solo el propietario o administrador del comercio puede gestionar este servicio.",
+      "wallet_required": "Debes configurar una billetera de Stellar testnet para continuar.",
+      "self_payment": "Las cuentas del comercio no pueden comprar sus propios servicios."
+    },
+    "platformService": "Servicio digital de CityPassport",
+    "platformScope": "Compra un registro de servicio y un sello de CityPassport para este lugar. No incluye entradas ni servicios de terceros."
   }
 }

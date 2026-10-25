@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { Compass, BookOpen, Wallet, UserRound, Route, Gift } from 'lucide-react';
+import { Compass, BookOpen, Wallet, UserRound, Route, Gift, Store } from 'lucide-react';
 
 export function AppNavigation({
   locale,
@@ -38,6 +38,12 @@ export function AppNavigation({
   ];
   const journey = [
     {
+      label: t('exploration.merchants'),
+      href: '/merchants',
+      icon: Store,
+      active: path === '/merchants',
+    },
+    {
       label: t('appUi.cityGuide'),
       href: '/explore',
       icon: Compass,
@@ -51,7 +57,7 @@ export function AppNavigation({
   ];
   if (
     variant === 'journey' &&
-    !/^\/(explore|routes|rewards|passport|claim|wallet|pay|profile|experiences|checkout)(\/|$)/.test(
+    !/^\/(merchants|explore|routes|rewards|passport|claim|wallet|pay|profile|experiences|checkout)(\/|$)/.test(
       path,
     ) &&
     !/^\/destinations\/[a-z0-9-]{3,}$/.test(path)

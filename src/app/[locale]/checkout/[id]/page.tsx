@@ -53,6 +53,15 @@ export default async function CheckoutPage({
       <h2>{checkout.merchant_name}</h2>
       <p>{localizedText(checkout.destination_names, locale)}</p>
       <p>{checkout.product}</p>
+      {checkout.merchant_service_id ? (
+        <>
+          {checkout.payout_source === 'citypass' ? (
+            <p>{t('merchantServices.platformScope')}</p>
+          ) : null}
+          <p>{t('merchantServices.award')}</p>
+          <p>{t('merchantServices.network')}</p>
+        </>
+      ) : null}
       <p className="checkout-amount">{checkout.amount} USDC</p>
       <details className="pass-details">
         <summary>
@@ -62,6 +71,8 @@ export default async function CheckoutPage({
         <dl>
           <dt>{t('payments.networkDetails')}</dt>
           <dd>{t('pollar.testnet')}</dd>
+          <dt>{t('payments.payout')}</dt>
+          <dd className="wallet-reference">{checkout.payout_address}</dd>
           <dt>{t('payments.assetIssuer')}</dt>
           <dd className="wallet-reference">{checkout.asset_issuer}</dd>
           <dt>{t('payments.expires')}</dt>
