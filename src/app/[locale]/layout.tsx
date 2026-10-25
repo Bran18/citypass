@@ -1,15 +1,24 @@
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
-import { Compass, BookOpen, Route, Gift, UserRound, Leaf, ArrowUpRight } from 'lucide-react';
+import { headers } from 'next/headers';
+import { CountryTheme } from '@/components/country-theme';
+import { countryForPath } from '@/lib/country-theme';
+import { Suspense } from 'react';
+import { getSelectedDestination } from '@/lib/destination-context/server';
+import { getDestinationDirectory } from '@/lib/destinations';
+import { LocaleLinks } from '@/components/locale-links';
+import { UserRound, Leaf, ArrowUpRight } from 'lucide-react';
+import { AppNavigation } from '@/components/app-navigation';
+import { PassportCta } from '@/components/passport-cta';
 import { configured } from '@/lib/supabase/server';
 import '../globals.css';
 import { notFound } from 'next/navigation';
 import { isLocale } from '@/i18n/routing';
-export const metadata = {
-  title: 'Iguazú Passport',
-  description: 'One passport. Your entire Iguazú experience.',
-};
+export async function generateMetadata() {
+  const t = await getTranslations();
+  return { title: t('globalPassport.brand'), description: t('destinationContext.tagline') };
+}
 export default async function Layout({
   children,
   params,
@@ -20,72 +29,76 @@ export default async function Layout({
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
-  const t = await getTranslations();
-  const messages = await getMessages();
-  const nav = [
-    ['explore', '', Compass],
-    ['passport', '/passport', BookOpen],
-    ['routes', '/routes', Route],
-    ['rewards', '/rewards', Gift],
-    ['profile', '/profile', UserRound],
-  ] as const;
+  const [t, messages, directory, selected] = await Promise.all([
+    getTranslations(),
+    getMessages(),
+    getDestinationDirectory(),
+    getSelectedDestination(),
+  ]);
+  const pathname = (await headers()).get('x-passport-pathname') ?? `/${locale}`;
+  const country = countryForPath(
+    pathname,
+    directory?.destinations ?? [],
+    directory?.countries ?? [],
+    selected?.country_code,
+  );
+  const neutral = !country;
   return (
     <html lang={locale}>
-      <body>
+      <body
+        data-country={country}
+        data-brand-page={neutral ? 'neutral' : 'country'}
+        data-country-landing={
+          /^\/(es|en|pt)\/destinations\/[a-z]{2}\/?$/.test(pathname) ? 'true' : 'false'
+        }
+      >
         <NextIntlClientProvider messages={messages}>
+          <CountryTheme
+            destinations={
+              directory?.destinations.map(({ slug, country_code }) => ({ slug, country_code })) ??
+              []
+            }
+            countries={directory?.countries.map(({ code }) => ({ code })) ?? []}
+            selectedCountry={selected?.country_code}
+          />
           <a className="skip" href="#main">
             {t('skip')}
           </a>
           <header className="site-header">
             <Link className="brand" href={`/${locale}`}>
               <Leaf size={27} />
-              <span>
-                Iguazú <b>Passport</b>
-              </span>
+              <span>{t('globalPassport.brand')}</span>
             </Link>
-            <nav className="desktop-nav" aria-label={t('explore')}>
-              {nav.slice(0, 4).map(([key, path]) => (
-                <Link key={key} href={`/${locale}${path}`}>
-                  {t(key)}
-                </Link>
-              ))}
-            </nav>
+            <AppNavigation locale={locale} variant="desktop" />
             <div className="header-actions">
-              <nav className="languages" aria-label="Language">
-                {['es', 'en', 'pt'].map((l) => (
-                  <Link key={l} href={`/${l}`} aria-current={locale === l ? 'page' : undefined}>
-                    {l.toUpperCase()}
-                  </Link>
-                ))}
-              </nav>
+              <Suspense>
+                <LocaleLinks locale={locale} />
+              </Suspense>
+              <PassportCta locale={locale} className="header-passport button primary" />
               <Link className="profile-link" aria-label={t('profile')} href={`/${locale}/profile`}>
                 <UserRound size={20} />
               </Link>
             </div>
           </header>
           {!configured() && <aside className="setup-banner">{t('setup')}</aside>}
+          <AppNavigation locale={locale} variant="journey" />
           <main id="main">{children}</main>
           <footer>
             <Link className="brand" href={`/${locale}`}>
               <Leaf size={22} />
-              Iguazú Passport
+              {t('globalPassport.brand')}
             </Link>
-            <p>{t('onePassport')}</p>
+            <p>{t('destinationContext.tagline')}</p>
             <div>
+              <Link href={`/${locale}/merchant`}>{t('landing.merchantTitle')}</Link>
+              <Link href={`/${locale}/partners`}>{t('landing.operatorTitle')}</Link>
               <Link href={`/${locale}/privacy`}>{t('privacy')}</Link>
               <Link href={`/${locale}/hotel`}>
                 {t('hotel')} <ArrowUpRight size={15} />
               </Link>
             </div>
           </footer>
-          <nav className="mobile-nav" aria-label={t('explore')}>
-            {nav.map(([key, path, Icon]) => (
-              <Link key={key} href={`/${locale}${path}`}>
-                <Icon size={21} />
-                <span>{t(key)}</span>
-              </Link>
-            ))}
-          </nav>
+          <AppNavigation locale={locale} variant="mobile" />
         </NextIntlClientProvider>
       </body>
     </html>

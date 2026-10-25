@@ -51,6 +51,7 @@ export function GuestForm() {
           {t(`fields.${field}`)}
           <input
             {...register(field)}
+            aria-describedby={errors[field] ? `guest-${field}-error` : undefined}
             type={
               field === 'email'
                 ? 'email'
@@ -67,11 +68,17 @@ export function GuestForm() {
                   ? 'name'
                   : field === 'phone'
                     ? 'tel'
-                    : 'off'
+                    : field === 'residence'
+                      ? 'country-name'
+                      : 'off'
             }
             aria-invalid={Boolean(errors[field])}
           />
-          {errors[field] && <small role="alert">{t('errors.invalid')}</small>}
+          {errors[field] && (
+            <small id={`guest-${field}-error`} className="error" role="alert">
+              {t('errors.invalid')}
+            </small>
+          )}
         </label>
       ))}
       <label className="wide">

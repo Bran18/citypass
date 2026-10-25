@@ -15,13 +15,13 @@ export function PassportPreview() {
         </div>
         <div className="passport-book journal-cover" aria-hidden={open}>
           <Leaf size={46} />
-          <span>Iguazú</span>
-          <h2>Passport</h2>
+          <span>{t('globalPassport.brand')}</span>
+          <h2>{t('passport')}</h2>
           <div className="book-seal">
             <Stamp size={52} />
           </div>
           <p>{t('passportCover')}</p>
-          <small>{t('location')}</small>
+          <small>{t('globalPassport.cover')}</small>
         </div>
       </div>
       <button

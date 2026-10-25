@@ -1,3 +1,6 @@
+import { DestinationItinerary } from '@/components/routes/destination-itinerary';
+import { getDestinationGuide } from '@/lib/destination-guides';
+import { PageIntro, EmptyState } from '@/components/page-intro';
 import { getTranslations } from 'next-intl/server';
 import { Route, Waves, Bird, Sprout, Mountain, ArrowUpRight, Compass, Stamp } from 'lucide-react';
 import Link from 'next/link';
@@ -6,6 +9,7 @@ import { SaveRoute } from '@/components/routes/save-route';
 import { Landscape } from '@/components/landscape';
 import { configured, createClient, session } from '@/lib/supabase/server';
 import { checked, localizedText } from '@/lib/data';
+import { getSelectedDestination } from '@/lib/destination-context/server';
 import { destinationId } from '@/lib/catalog';
 export default async function Routes({
   params,
@@ -15,7 +19,7 @@ export default async function Routes({
   searchParams: Promise<{ route?: string }>;
 }) {
   const { locale } = await params;
-  const t = await getTranslations();
+  const [t, selected] = await Promise.all([getTranslations(), getSelectedDestination()]);
   const selection = await searchParams;
   const chosen = getItinerary(typeof selection.route === 'string' ? selection.route : undefined);
   const icons = { falls: Waves, wildlife: Bird, roots: Sprout, adventure: Mountain };
@@ -26,7 +30,7 @@ export default async function Routes({
         await db
           .from('routes')
           .select('id,name,description,required_stops,route_stops(venue_id,position,venues(name))')
-          .eq('destination_id', destinationId),
+          .eq('destination_id', selected?.id ?? destinationId),
       )
     : [];
   const user = await session();
@@ -35,6 +39,48 @@ export default async function Routes({
   const visited = new Set(
     claims.map((c) => (c.stamp_definitions as unknown as { venue_id: string } | null)?.venue_id),
   );
+  if (selected && selected.slug !== 'puerto-iguazu')
+    return (
+      <section className="section app-page routes-page">
+        <PageIntro
+          title={t('destinationContext.routesTitle', {
+            destination: localizedText(selected.names, locale),
+          })}
+          icon={Route}
+        />
+        <DestinationItinerary slug={selected.slug} />
+        {!routes.length && !getDestinationGuide(selected.slug) ? (
+          <EmptyState
+            icon={Route}
+            title={t('appUi.routesEmptyTitle')}
+            body={t('destinationContext.routesEmpty')}
+          />
+        ) : (
+          routes.map((route) => (
+            <article className="route-item" key={route.id}>
+              <h2>{localizedText(route.name, locale)}</h2>
+              <p>{localizedText(route.description, locale)}</p>
+              <p>
+                {t('routeProgress', {
+                  count: route.route_stops.filter((stop) => visited.has(stop.venue_id)).length,
+                  total: route.required_stops,
+                })}
+              </p>
+              <ol>
+                {route.route_stops
+                  .toSorted((a, b) => a.position - b.position)
+                  .map((stop) => (
+                    <li key={stop.venue_id}>{stop.venues?.name}</li>
+                  ))}
+              </ol>
+            </article>
+          ))
+        )}
+        <Link className="app-text-link" href={`/${locale}/destinations/${selected.slug}`}>
+          {t('destinationContext.discover')}
+        </Link>
+      </section>
+    );
   return (
     <section className="section routes-page">
       <header className="routes-intro">
@@ -82,7 +128,7 @@ export default async function Routes({
           <aside className="route-preparation">
             <h3>{t('routeGuide.before')}</h3>
             <p>{t(`routeGuide.themes.${chosen.id}.tip`)}</p>
-            <Link href={`/${locale}?category=agency#discover`}>
+            <Link href={`/${locale}/explore?category=agency#discover`}>
               {t('routeGuide.agencies')} <ArrowUpRight size={16} />
             </Link>
           </aside>

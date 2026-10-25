@@ -1,26 +1,46 @@
+import { WorkspaceAccess } from '@/components/workspace-access';
 import { getTranslations } from 'next-intl/server';
 import { session, createClient } from '@/lib/supabase/server';
-import { checked } from '@/lib/data';
+import { getSelectedDestination } from '@/lib/destination-context/server';
+import { checked, localizedText } from '@/lib/data';
 import { destinationId } from '@/lib/catalog';
-import { AuthGate } from '@/components/auth-gate';
 import { ActionForm } from '@/components/action-form';
 export const metadata = { robots: { index: false, follow: false } };
 export default async function Hotel({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
-  const [t, user] = await Promise.all([getTranslations(), session()]);
+  const [t, user, selected] = await Promise.all([
+    getTranslations(),
+    session(),
+    getSelectedDestination(),
+  ]);
   if (!user)
     return (
-      <section className="section narrow">
-        <h1>{t('hotelTitle')}</h1>
-        <p>{t('hotelBody')}</p>
-        <AuthGate locale={locale} />
-      </section>
+      <WorkspaceAccess locale={locale} title={t('hotelTitle')} body={t('hotelBody')} kind="hotel" />
     );
   const db = await createClient();
-  const orgs = checked(await db.from('organizations').select('id,name,status').eq('kind', 'hotel'));
+  const orgs = checked(
+    await db
+      .from('organizations')
+      .select('id,name,status')
+      .eq('kind', 'hotel')
+      .eq('destination_id', selected?.id ?? destinationId),
+  );
   const [reservations, submissions, venues] = await Promise.all([
-    db.from('hotel_reservations').select('*').order('arrival'),
-    db.from('precheckin_submissions').select('*'),
+    db
+      .from('hotel_reservations')
+      .select('*')
+      .in(
+        'organization_id',
+        orgs.map((org) => org.id),
+      )
+      .order('arrival'),
+    db
+      .from('precheckin_submissions')
+      .select('*')
+      .in(
+        'organization_id',
+        orgs.map((org) => org.id),
+      ),
     db
       .from('venues')
       .select('id,name,organization_id,stamp_definitions(id,name)')
@@ -33,15 +53,22 @@ export default async function Hotel({ params }: { params: Promise<{ locale: stri
   const guests = checked(submissions);
   const places = checked(venues);
   return (
-    <section className="section">
+    <section className="section workspace-page">
       <div className="page-heading">
         <h1>{t('hotelTitle')}</h1>
         <p>{t('hotelBody')}</p>
+        {selected ? (
+          <p>
+            {t('destinationContext.hotelScope', {
+              destination: localizedText(selected.names, locale),
+            })}
+          </p>
+        ) : null}
       </div>
       <details className="onboarding" open={!orgs.length}>
         <summary>{t('newHotel')}</summary>
         <ActionForm locale={locale} command="create_hotel" label={t('newHotel')}>
-          <input type="hidden" name="destination_id" value={destinationId} />
+          <input type="hidden" name="destination_id" value={selected?.id ?? destinationId} />
           <label>
             {t('hotelName')}
             <input name="name" required minLength={2} maxLength={120} />

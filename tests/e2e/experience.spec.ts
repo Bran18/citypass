@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 test('sample stamp is explicitly a preview and resets', async ({ page }) => {
-  await page.goto('/es');
+  await page.goto('/es/explore');
   await page.getByRole('button', { name: 'Probá tu primer sello', exact: true }).click();
   await expect(page.getByRole('status')).toContainText('Solo una muestra.');
   await expect(page.locator('.sample-seal')).toHaveClass(/is-stamped/);
@@ -13,7 +13,7 @@ test('sample stamp is explicitly a preview and resets', async ({ page }) => {
 
 test('reduced motion keeps the static illustration until explicitly enabled', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.goto('/en');
+  await page.goto('/en/explore');
   await expect(page.locator('canvas')).toHaveCount(0);
   await page.getByRole('button', { name: 'Try a sample stamp', exact: true }).click();
   await page.getByRole('button', { name: /Iguazú Falls/ }).click();
@@ -31,7 +31,7 @@ test('WebGL failure leaves useful content and the original illustration', async 
     } as typeof original;
   });
   await page.emulateMedia({ reducedMotion: 'no-preference' });
-  await page.goto('/es');
+  await page.goto('/es/explore');
   await page.getByRole('button', { name: 'Probá tu primer sello', exact: true }).click();
   await page.getByRole('button', { name: /Cataratas del Iguazú/ }).click();
   await expect(page.locator('.living-landscape')).toHaveAttribute('data-scene', 'fallback');
@@ -43,7 +43,7 @@ test('scene has pause and view controls, and releases its canvas on navigation',
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: 'no-preference' });
-  await page.goto('/es');
+  await page.goto('/es/explore');
   await page.getByRole('button', { name: 'Probá tu primer sello', exact: true }).click();
   await page.getByRole('button', { name: /Cataratas del Iguazú/ }).click();
   await expect(page.locator('.living-landscape')).toHaveAttribute('data-scene', 'ready');

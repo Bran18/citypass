@@ -1,15 +1,23 @@
 import { defineConfig, devices } from '@playwright/test';
+import { z } from 'zod';
+const port = z.coerce
+  .number()
+  .int()
+  .min(1024)
+  .max(65535)
+  .parse(process.env.TEST_PORT ?? '3000');
+const baseURL = `http://localhost:${port}`;
 export default defineConfig({
   testDir: './tests/e2e',
   fullyParallel: true,
-  use: { baseURL: 'http://127.0.0.1:3000', trace: 'retain-on-failure' },
+  use: { baseURL, trace: 'retain-on-failure' },
   projects: [
     { name: 'desktop', use: { ...devices['Desktop Chrome'] } },
     { name: 'mobile', use: { ...devices['iPhone 13'], defaultBrowserType: 'chromium' } },
   ],
   webServer: {
-    command: 'npm run start',
-    url: 'http://127.0.0.1:3000/es',
+    command: `npm run start -- --port ${port}`,
+    url: `${baseURL}/es`,
     reuseExistingServer: !process.env.CI,
     timeout: 60000,
   },

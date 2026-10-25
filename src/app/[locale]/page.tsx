@@ -1,268 +1,338 @@
-import { getTranslations } from 'next-intl/server';
+import { PassSummary } from '@/components/pass-summary';
+import { PassportCta } from '@/components/passport-cta';
+import { PassProgram } from '@/components/pass-program';
 import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
 import {
   ArrowUpRight,
-  MapPin,
-  Leaf,
-  Utensils,
-  BedDouble,
-  Compass,
-  Sprout,
-  Music,
-  Mountain,
-  Bird,
-  Trees,
   ArrowRight,
-  Stamp,
-  ScanLine,
   BookOpen,
-  Footprints,
+  Compass,
+  Globe2,
+  ScanLine,
+  Stamp,
+  Store,
+  Wallet,
+  Landmark,
+  Plus,
+  Check,
+  ChevronDown,
 } from 'lucide-react';
-import { filterPlaces } from '@/lib/catalog';
-import { getPlaces } from '@/lib/data';
-import { Landscape } from '@/components/landscape';
+import { DestinationArt } from '@/components/destination-art';
+import { LandingJourney } from '@/components/landing-journey';
 import { SampleStamp } from '@/components/experience/sample-stamp';
-import { PlaceIllustration } from '@/components/experience/place-illustration';
-import { Button } from '@/components/ui/button';
-export default async function Explore({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ locale: string }>;
-  searchParams: Promise<{ category?: string; q?: string }>;
-}) {
-  const [{ locale }, { category, q }] = await Promise.all([params, searchParams]);
-  const [t, places] = await Promise.all([getTranslations(), getPlaces()]);
-  const query = typeof q === 'string' ? q.slice(0, 120) : '';
-  const selectedCategory = typeof category === 'string' ? category : '';
-  const filtered = filterPlaces(places, selectedCategory, query);
+import { getDestinationDirectory } from '@/lib/destinations';
+import { localizedText } from '@/lib/data';
+import { walletConfiguration } from '@/lib/wallet/server';
+
+export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  const [t, directory] = await Promise.all([getTranslations(), getDestinationDirectory()]);
+  const countries = ['CR', 'AR', 'BR', 'PT'].flatMap((code) => {
+    const country = directory?.countries.find((entry) => entry.code === code);
+    return country
+      ? [
+          {
+            ...country,
+            cities: directory!.destinations.filter((city) => city.country_code === code),
+          },
+        ]
+      : [];
+  });
+  const passportHref = `/${locale}/passport`;
+  const config = walletConfiguration();
   return (
-    <>
-      <section className="hero">
+    <div className="global-landing">
+      <section className="hero global-hero">
         <div className="hero-copy">
-          <p className="location">
-            <MapPin size={16} />
-            {t('location')}
+          <p className="journey-intro">
+            <Globe2 size={17} />
+            {t('landing.intro')}
           </p>
-          <h1>{t('heroTitle')}</h1>
-          <p className="lead">{t('heroBody')}</p>
+          <h1>{t('landing.title')}</h1>
+          <p className="lead">{t('landing.body')}</p>
           <div className="hero-actions">
-            <Button asChild>
-              <Link href={`/${locale}/passport`}>
-                {t('getPassport')}
-                <ArrowRight size={17} />
-              </Link>
-            </Button>
-            <a href="#discover">{t('discover')}</a>
+            <PassportCta locale={locale} className="button primary">
+              <ArrowUpRight size={18} />
+            </PassportCta>
+            <Link className="button outline" href={`/${locale}/destinations`}>
+              {t('marketing.cta')}
+            </Link>
           </div>
-          <p className="hero-caption">
-            <Stamp size={18} />
-            {t('onePassport')}
+          <p className="hero-footnote">
+            <BookOpen size={15} />
+            {t('landing.heroNote')}
           </p>
         </div>
-        <div className="hero-art">
-          <Landscape />
-          <div className="postmark">
-            <span>Puerto Iguazú</span>
-            <Leaf size={28} />
-            <span>Misiones · Argentina</span>
+        {countries.length ? (
+          <LandingJourney
+            destinations={countries.map((country) => ({
+              code: country.code,
+              name: localizedText(country.names, locale),
+              href: `/${locale}/destinations/${country.code.toLowerCase()}`,
+              art: (
+                <DestinationArt
+                  country={country.code}
+                  slug={country.code === 'AR' ? 'puerto-iguazu' : undefined}
+                  label={t('travelDesign.illustration', {
+                    destination: localizedText(country.names, locale),
+                  })}
+                />
+              ),
+            }))}
+            passportHref={passportHref}
+            brand={t('globalPassport.brand')}
+            tagline={t('destinationContext.tagline')}
+            label={t('landing.chooseScene')}
+          />
+        ) : (
+          <DestinationArt country="AR" slug="puerto-iguazu" label={t('landing.intro')} />
+        )}
+      </section>
+
+      <section className="section landing-countries" id="countries">
+        <div className="landing-section-heading">
+          <div>
+            <h2>{t('landing.countriesTitle')}</h2>
+            <p>{t('landing.countriesBody')}</p>
           </div>
-          <div className="art-label">25°41′ S &nbsp; 54°26′ O</div>
+          <Link href={`/${locale}/destinations`}>
+            {t('landing.allDestinations')}
+            <ArrowUpRight size={18} />
+          </Link>
+        </div>
+        {countries.length ? (
+          <div className="landing-country-grid">
+            {countries.map((country) => (
+              <Link
+                className={`landing-country country-${country.code}`}
+                key={country.code}
+                href={`/${locale}/destinations/${country.code.toLowerCase()}`}
+              >
+                <div className="landing-country-art">
+                  <DestinationArt
+                    country={country.code}
+                    slug={country.code === 'AR' ? 'puerto-iguazu' : undefined}
+                    label={t('travelDesign.illustration', {
+                      destination: localizedText(country.names, locale),
+                    })}
+                  />
+                  <span className="country-code" aria-hidden="true">
+                    {country.code}
+                  </span>
+                </div>
+                <div className="landing-country-copy">
+                  <h3>
+                    {localizedText(country.names, locale)}
+                    <ArrowUpRight size={20} />
+                  </h3>
+                  <p>
+                    {country.cities.map((city) => localizedText(city.names, locale)).join(' / ')}
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <p role="status">{t('destinationContext.unavailable')}</p>
+        )}
+      </section>
+
+      <section className="landing-wallet" id="travel-wallet">
+        <div className="landing-wallet-inner">
+          <div className="wallet-editorial">
+            <div className="wallet-symbol">
+              <Wallet size={27} strokeWidth={1.4} />
+            </div>
+            <h2>{t('landing.walletTitle')}</h2>
+            <p className="lead">{t('landing.walletBody')}</p>
+            <ul className="wallet-capabilities">
+              {['walletTopup', 'walletPay', 'walletRecord'].map((key) => (
+                <li key={key}>
+                  <Check size={17} />
+                  {t(`landing.${key}`)}
+                </li>
+              ))}
+            </ul>
+            <div className="inline-actions">
+              <Link className="button primary" href={`/${locale}/wallet`}>
+                {t('landing.openWallet')}
+                <ArrowUpRight size={17} />
+              </Link>
+              <Link href={`/${locale}/pay`}>
+                {t('payments.scan')}
+                <ScanLine size={18} />
+              </Link>
+            </div>
+            <details className="pass-details">
+              <summary>{t('payments.networkDetails')}</summary>
+              <p>
+                {t(
+                  config?.network === 'mainnet' ? 'landing.walletNetwork' : 'landing.walletTestnet',
+                )}
+              </p>
+            </details>
+          </div>
+          <div className="wallet-travel-object">
+            <div className="wallet-object-heading">
+              <span>{t('landing.travelWallet')}</span>
+              <Compass size={25} strokeWidth={1.2} />
+            </div>
+            <span className="wallet-currency">{t('landing.usdc')}</span>
+            <p>{t('landing.walletObjectBody')}</p>
+            <div className="wallet-object-flow">
+              <span>
+                <Plus size={22} />
+                {t('landing.addFunds')}
+              </span>
+              <ArrowRight size={19} />
+              <span>
+                <ScanLine size={28} />
+                {t('landing.scanPay')}
+              </span>
+            </div>
+            <div className="wallet-object-footer">
+              <span>{t('landing.stellar')}</span>
+              <span>{t('landing.walletConcept')}</span>
+            </div>
+          </div>
         </div>
       </section>
-      <section className="first-stamp section" aria-labelledby="first-stamp-title">
-        <div className="first-stamp-heading">
-          <h2 id="first-stamp-title">{t('experience.firstStampTitle')}</h2>
-          <p>{t('experience.firstStampBody')}</p>
+
+      <section className="section landing-passes" id="city-passes">
+        <div className="landing-section-heading">
+          <div>
+            <h2>{t('landing.passesTitle')}</h2>
+            <p>{t('destinationPass.introShort')}</p>
+          </div>
         </div>
-        <ol className="journey-steps">
-          {[
-            ['stepExplore', 'stepExploreBody', Footprints],
-            ['stepScan', 'stepScanBody', ScanLine],
-            ['stepKeep', 'stepKeepBody', BookOpen],
-          ].map(([title, body, Icon], i) => (
-            <li key={title as string}>
-              <div className="step-symbol">
-                <Icon size={23} />
-                <span>{i + 1}</span>
+        <div className="pass-selection">
+          <div className="pass-selection-intro">
+            <PassSummary />
+            <p>{t('destinationPass.chooseDestination')}</p>
+          </div>
+          <div className="pass-register">
+            {countries.map((country) => (
+              <details className={`pass-country country-${country.code}`} key={country.code}>
+                <summary>
+                  <span>
+                    {localizedText(country.names, locale)}
+                    <small>
+                      {country.cities.map((city) => localizedText(city.names, locale)).join(' / ')}
+                    </small>
+                  </span>
+                  <ChevronDown size={18} aria-hidden="true" />
+                </summary>
+                <div>
+                  {country.cities.map((city) => (
+                    <article className="pass-entry" key={city.id}>
+                      <h3>{localizedText(city.names, locale)}</h3>
+                      <p className="pass-price">{t('destinationPass.price')}</p>
+                      <Link
+                        href={`/${locale}/destinations/${city.slug}#destination-pass`}
+                        aria-label={t('destinationPass.viewCity', {
+                          destination: localizedText(city.names, locale),
+                        })}
+                      >
+                        {t('destinationPass.detailsShort')}
+                        <ArrowUpRight size={16} aria-hidden="true" />
+                      </Link>
+                    </article>
+                  ))}
+                </div>
+              </details>
+            ))}
+          </div>
+        </div>
+        {!countries.length ? <p role="status">{t('destinationContext.unavailable')}</p> : null}
+        <PassProgram id="landing-pass-program" />
+      </section>
+
+      <section className="section landing-passport" id="digital-passport">
+        <div className="passport-memory">
+          <SampleStamp />
+        </div>
+        <div>
+          <h2>{t('landing.passportTitle')}</h2>
+          <p className="lead">{t('landing.passportBody')}</p>
+          <div className="passport-chapters">
+            {(
+              [
+                [Stamp, 'stamps'],
+                [Compass, 'visited'],
+                [BookOpen, 'achievements'],
+              ] as const
+            ).map(([Icon, key]) => (
+              <div key={key}>
+                <Icon size={20} strokeWidth={1.5} />
+                <span>{t(`landing.${key}`)}</span>
               </div>
-              <h3>{t(`experience.${title}`)}</h3>
-              <p>{t(`experience.${body}`)}</p>
+            ))}
+          </div>
+          <p className="landing-note">{t('landing.achievementsNote')}</p>
+          <PassportCta locale={locale} className="landing-text-link">
+            <ArrowUpRight size={18} />
+          </PassportCta>
+        </div>
+      </section>
+
+      <section className="section landing-how" id="how-it-works">
+        <h2>{t('landing.howTitle')}</h2>
+        <ol>
+          {(
+            [
+              ['create', BookOpen],
+              ['select', Globe2],
+              ['pay', ScanLine],
+              ['collect', Stamp],
+            ] as const
+          ).map(([key, Icon], index) => (
+            <li key={key}>
+              <span className="step-number">{index + 1}</span>
+              <Icon size={27} strokeWidth={1.3} />
+              <h3>{t(`landing.${key}Title`)}</h3>
+              <p>{t(`landing.${key}Body`)}</p>
             </li>
           ))}
         </ol>
       </section>
-      <section id="discover" className="discover section">
-        <div className="section-heading">
+
+      <section className="section landing-business" id="business">
+        <div className="landing-section-heading">
           <div>
-            <h2>{t('fieldNotes')}</h2>
-            <p>{t('directory.sourceIntro')}</p>
+            <h2>{t('landing.businessTitle')}</h2>
+            <p>{t('landing.businessBody')}</p>
           </div>
-          <span className="discovery-note">
-            <Leaf size={17} />
-            {t('experience.discoverNote')}
-          </span>
         </div>
-        <nav className="filters" aria-label={t('explore')}>
-          {[
-            ['all', '', MapPin],
-            ['nature', 'nature', Leaf],
-            ['directory.culture', 'culture', Music],
-            ['directory.adventure', 'adventure', Mountain],
-            ['directory.rural', 'rural', Sprout],
-            ['directory.agency', 'agency', Compass],
-            ['food', 'food', Utensils],
-            ['stay', 'stay', BedDouble],
-          ].map(([key, value, Icon]) => (
-            <Link
-              className={(!category && !value) || category === value ? 'selected' : ''}
-              key={key as string}
-              href={`/${locale}?${new URLSearchParams({ ...(value ? { category: value as string } : {}), ...(query ? { q: query } : {}) })}#discover`}
-              aria-current={selectedCategory === value ? 'page' : undefined}
-            >
-              <Icon size={16} />
-              {t(key as string)}
+        <div className="business-paths">
+          <article>
+            <Store size={27} strokeWidth={1.3} />
+            <h3>{t('landing.merchantTitle')}</h3>
+            <p>{t('landing.merchantBody')}</p>
+            <Link className="landing-text-link" href={`/${locale}/merchant`}>
+              {t('landing.merchantCta')}
+              <ArrowUpRight size={18} />
             </Link>
-          ))}
-        </nav>
-        <form action={`/${locale}#discover`} className="directory-search">
-          <label htmlFor="directory-query">{t('directory.searchLabel')}</label>
-          <div>
-            {selectedCategory && <input type="hidden" name="category" value={selectedCategory} />}
-            <input
-              id="directory-query"
-              name="q"
-              type="search"
-              maxLength={120}
-              defaultValue={query}
-              placeholder={t('directory.searchPlaceholder')}
-            />
-            <button type="submit">{t('directory.search')}</button>
-          </div>
-        </form>
-        <div className="directory-summary">
-          <p>{t('directory.results', { count: filtered.length })}</p>
-          {(query || selectedCategory) && (
-            <Link href={`/${locale}#discover`}>{t('directory.clear')}</Link>
-          )}
-        </div>
-        <div className="places">
-          {filtered.map((place, index) => (
-            <article className="place" key={place.id}>
-              <div className={`place-art art-${index % 3}`}>
-                {place.id.startsWith('20000000') ? (
-                  <PlaceIllustration variant={index % 3} />
-                ) : (
-                  <div className="directory-emblem" aria-hidden="true">
-                    {place.category === 'agency' ? (
-                      <Compass />
-                    ) : place.category === 'culture' ? (
-                      <Music />
-                    ) : place.category === 'rural' ? (
-                      <Sprout />
-                    ) : place.category === 'adventure' ? (
-                      <Mountain />
-                    ) : place.id.includes('picaflores') || place.id.includes('guira') ? (
-                      <Bird />
-                    ) : (
-                      <Trees />
-                    )}
-                  </div>
-                )}
-              </div>
-              <div className="place-copy">
-                <span className="tag">
-                  {t(place.participation_status === 'participating' ? 'participating' : 'listed')}
-                </span>
-                <h3>{place.name}</h3>
-                <p>{place.description[locale] ?? place.description.es}</p>
-                {(place.address || place.phone || place.email) && (
-                  <details className="directory-contact">
-                    <summary>{t('directory.contact')}</summary>
-                    {place.address && (
-                      <p>
-                        <MapPin size={14} /> {place.address}
-                      </p>
-                    )}
-                    {place.phone && (
-                      <p>
-                        <a
-                          href={`tel:${place.phone.startsWith('+') ? place.phone.replace(/[^+0-9]/g, '') : '+54' + place.phone.replace(/\D/g, '')}`}
-                        >
-                          {place.phone}
-                        </a>
-                      </p>
-                    )}
-                    {place.email && (
-                      <p>
-                        <a href={`mailto:${place.email}`}>{place.email}</a>
-                      </p>
-                    )}
-                  </details>
-                )}
-                {place.checked_at && (
-                  <small className="directory-checked">
-                    {t('directory.checked', {
-                      date: new Intl.DateTimeFormat(locale, {
-                        dateStyle: 'medium',
-                        timeZone: 'UTC',
-                      }).format(new Date(place.checked_at + 'T12:00:00Z')),
-                    })}
-                  </small>
-                )}
-                {place.source_url && (
-                  <a href={place.source_url} target="_blank" rel="noopener noreferrer">
-                    {t('source')}
-                    <ArrowUpRight size={16} />
-                  </a>
-                )}
-              </div>
-            </article>
-          ))}
-        </div>
-        {!filtered.length && (
-          <div className="empty">
-            <p>{t('noPlaces')}</p>
-            <a
-              href={
-                category === 'food'
-                  ? 'https://visitiguazu.travel/gastronomia/'
-                  : 'https://visitiguazu.travel/'
-              }
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {t('source')}
-              <ArrowUpRight size={16} />
-            </a>
-          </div>
-        )}
-        <div className="directory-sources">
-          <strong>{t('directory.sourceTitle')}</strong>
-          <p className="source-note">{t('sourceNote')}</p>
-          <a
-            href="https://visitiguazu.travel/atractivos/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {t('directory.attractionsSource')} <ArrowUpRight size={14} />
-          </a>
-          <a href="https://visitiguazu.travel/agencias/" target="_blank" rel="noopener noreferrer">
-            {t('directory.agenciesSource')} <ArrowUpRight size={14} />
-          </a>
+          </article>
+          <article>
+            <Landmark size={27} strokeWidth={1.3} />
+            <h3>{t('landing.operatorTitle')}</h3>
+            <p>{t('landing.operatorBody')}</p>
+            <Link className="landing-text-link" href={`/${locale}/partners`}>
+              {t('landing.operatorCta')}
+              <ArrowUpRight size={18} />
+            </Link>
+          </article>
         </div>
       </section>
-      <section className="passport-promo section">
-        <SampleStamp />
-        <div>
-          <h2>{t('passportTitle')}</h2>
-          <p>{t('experience.promoBody')}</p>
-          <Link href={`/${locale}/passport`}>
-            {t('getPassport')}
-            <ArrowRight size={17} />
-          </Link>
-        </div>
+      <section className="landing-closing">
+        <Compass size={44} strokeWidth={1} />
+        <h2>{t('landing.closingTitle')}</h2>
+        <p>{t('landing.closingBody')}</p>
+        <PassportCta locale={locale} className="button">
+          <ArrowUpRight size={18} />
+        </PassportCta>
       </section>
-    </>
+    </div>
   );
 }

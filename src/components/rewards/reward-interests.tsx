@@ -8,8 +8,26 @@ const concepts = [
   { id: 'crafts', Icon: Flower2 },
 ] as const;
 type Interest = (typeof concepts)[number]['id'];
-const storageKey = 'iguazu:reward-interests';
-export function RewardInterests() {
+export function RewardInterests({
+  destination = 'puerto-iguazu',
+  city = 'Iguazú',
+}: {
+  destination?: string;
+  city?: string;
+}) {
+  const storageKey =
+    destination === 'puerto-iguazu'
+      ? 'iguazu:reward-interests'
+      : `citypassport:reward-interests:${destination}`;
+  const journey = useTranslations('destinationJourneys');
+  const title = (id: Interest) =>
+    destination === 'puerto-iguazu'
+      ? t(`concepts.${id}.title`)
+      : journey(`rewards.${id}.title`, { destination: city });
+  const body = (id: Interest) =>
+    destination === 'puerto-iguazu'
+      ? t(`concepts.${id}.body`)
+      : journey(`rewards.${id}.body`, { destination: city });
   const t = useTranslations('rewardGuide');
   const [selected, setSelected] = useState<Interest[]>([]);
   const [filter, setFilter] = useState<'all' | 'saved'>('all');
@@ -24,7 +42,7 @@ export function RewardInterests() {
       setError(true);
     }
     setReady(true);
-  }, []);
+  }, [storageKey]);
   function toggle(id: Interest) {
     const next = selected.includes(id)
       ? selected.filter((value) => value !== id)
@@ -72,15 +90,15 @@ export function RewardInterests() {
             </div>
             <div className="reward-concept-copy">
               <span className="reward-proposal">{t('proposal')}</span>
-              <h3>{t(`concepts.${id}.title`)}</h3>
-              <p>{t(`concepts.${id}.body`)}</p>
+              <h3>{title(id)}</h3>
+              <p>{body(id)}</p>
               <small>{t('termsPending')}</small>
               <button
                 type="button"
                 disabled={!ready}
                 aria-pressed={selected.includes(id)}
                 aria-label={t(selected.includes(id) ? 'removeNamed' : 'saveNamed', {
-                  name: t(`concepts.${id}.title`),
+                  name: title(id),
                 })}
                 onClick={() => toggle(id)}
               >

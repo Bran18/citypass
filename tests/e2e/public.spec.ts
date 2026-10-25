@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 test('discovery works without an account and preserves source attribution', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', (e) => errors.push(e.message));
-  await page.goto('/es');
+  await page.goto('/es/explore');
   await expect(
     page.getByRole('heading', { name: 'El viaje se vive. Los recuerdos se sellan.' }),
   ).toBeVisible();
@@ -17,17 +17,17 @@ test('discovery works without an account and preserves source attribution', asyn
   );
   expect(errors).toEqual([]);
 });
-test('passport does not fabricate stamps and sign-in reflects configuration', async ({
-  page,
-}) => {
+test('passport does not fabricate stamps and sign-in reflects configuration', async ({ page }) => {
   await page.goto('/es/passport');
   await expect(page.getByText('Tu primer sello te espera')).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Continuar con Google' })).toBeEnabled({ enabled: process.env.TEST_SUPABASE_CONFIGURED === '1' });
+  await expect(page.getByRole('button', { name: 'Continuar con Google' })).toBeEnabled({
+    enabled: process.env.TEST_POLLAR_CONFIGURED === '1',
+  });
   await page.goto('/es/hotel');
   await expect(page.getByRole('heading', { name: 'Iniciá sesión para continuar' })).toBeVisible();
 });
 test('all three languages render server and client copy', async ({ page }) => {
-  await page.goto('/en');
+  await page.goto('/en/explore');
   await expect(
     page.getByRole('heading', { name: 'Live the journey. Keep the memories.' }),
   ).toBeVisible();
@@ -35,8 +35,13 @@ test('all three languages render server and client copy', async ({ page }) => {
   await page.getByRole('link', { name: 'PT', exact: true }).click();
   await expect(page.locator('html')).toHaveAttribute('lang', 'pt');
   await page.goto('/pt/passport');
+  await expect(
+    page.getByText('Um passaporte para todos os destinos.', { exact: false }),
+  ).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Um lugar para suas lembranças.' })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Continuar com Google' })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Continuar com Google' })).toBeEnabled({
+    enabled: process.env.TEST_POLLAR_CONFIGURED === '1',
+  });
 });
 test('guest form removes fragment and rejects incomplete submissions', async ({ page }) => {
   await page.goto('/es/precheckin#token=' + 'a'.repeat(64));
@@ -53,7 +58,7 @@ test('planned rewards are clearly unavailable', async ({ page }) => {
 });
 
 test('source directory supports agency filtering, contacts and search', async ({ page }) => {
-  await page.goto('/es?category=agency#discover');
+  await page.goto('/es/explore?category=agency#discover');
   await expect(page.getByRole('heading', { name: 'Aguas Grandes', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Garganta del Diablo' })).toHaveCount(0);
   const agency = page.locator('article').filter({ hasText: 'Aguas Grandes' });
