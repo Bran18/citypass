@@ -19,7 +19,7 @@ export async function purchaseDestinationPass(
     const result = await passCommand('purchase', parsed.data);
     id = z.uuid().parse(result.id);
   } catch (error) {
-    const allowed = ['activate_first', 'already_owned', 'wallet_required', 'self_payment'];
+    const allowed = ['activate_first', 'already_owned', 'purchase_pending', 'wallet_required', 'self_payment'];
     return {
       error:
         error instanceof Error && allowed.includes(error.message) ? error.message : 'unavailable',

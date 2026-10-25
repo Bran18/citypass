@@ -11,3 +11,5 @@ supabase/.branches/
 .vercel/
 contracts/**/target/
 .stellar/
+
+.x402/

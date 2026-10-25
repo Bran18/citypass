@@ -24,6 +24,7 @@ import { StampDetail } from '@/components/experience/stamp-detail';
 import { PassportPreview } from '@/components/experience/passport-preview';
 import { PassportStampBook } from '@/components/experience/passport-stamp-book';
 import { passportStampPages } from '@/lib/passport-pages';
+import { x402Enabled } from '@/lib/x402/server';
 import { ActivityPanel } from '@/components/activity-panel';
 import { getPassportChainState } from '@/lib/activity/server';
 export default async function Passport({ params }: { params: Promise<{ locale: string }> }) {
@@ -171,6 +172,11 @@ export default async function Passport({ params }: { params: Promise<{ locale: s
         </PageIntro>
       )}
       {passport ? <ActivityPanel state={chainState} locale={locale} /> : null}
+      {user && x402Enabled() ? (
+        <Link className="app-text-link" href={`/${locale}/passport/agents`}>
+          {t('agentPurchase.title')}
+        </Link>
+      ) : null}
       <div className={passport ? 'passport-workspace' : 'passport-layout'}>
         {passport ? (
           <aside className="passport-identity" aria-label={t('passportUi.summary')}>

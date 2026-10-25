@@ -1147,5 +1147,47 @@
     },
     "transaction": "View contract transaction",
     "receipt": "View payment receipt"
+  },
+  "agentPurchase": {
+    "title": "Authorize an agent purchase",
+    "description": "Let your travel agent pay for one destination pass on Stellar testnet.",
+    "back": "Back to passport",
+    "scope": "One pass · 100 testnet USDC · expires in 15 minutes. The pass and reputation belong to your passport. This development pass includes no venue admission or discounts.",
+    "offer": "Pass for the selected destination",
+    "wallet": "Agent paying wallet (public Stellar address)",
+    "consent": "I authorize this wallet to pay 100 testnet USDC for this pass for my passport.",
+    "authorize": "Create purchase authorization",
+    "preparing": "Preparing authorization…",
+    "ready": "Purchase authorization ready",
+    "secretNote": "Copy this credential now and share it only with your agent. It authorizes this purchase only and is not shown again after leaving this page.",
+    "endpoint": "Purchase endpoint",
+    "credential": "Bearer credential",
+    "instructions": "The agent sends this credential in the Authorization: Bearer header. The endpoint returns x402 payment requirements. Keep it out of URLs, logs and chat transcripts.",
+    "revoke": "Revoke unused authorization",
+    "revoked": "Authorization revoked.",
+    "revokeFailed": "Unable to revoke. Payment may already be processing; check your passport before authorizing another purchase.",
+    "empty": "No published pass is available for the selected destination.",
+    "apiDescription": "One development destination pass; no venue admission or discounts. Stellar testnet USDC only.",
+    "errors": {
+      "unavailable": "Unable to complete this operation. Try again.",
+      "invalid": "Check the information you entered.",
+      "unauthorized": "Sign in to continue.",
+      "wallet_required": "Unable to complete this operation. Try again.",
+      "activate_first": "Activate your passport before collecting a stamp.",
+      "already_owned": "Unable to complete this operation. Try again.",
+      "self_payment": "Unable to complete this operation. Try again.",
+      "idempotency_conflict": "Unable to complete this operation. Try again.",
+      "purchase_pending": "A purchase is already open for this destination. Complete or revoke it before creating another."
+    },
+    "history": "Your agent authorizations",
+    "noHistory": "No agent authorizations yet.",
+    "states": {
+      "authorized": "Awaiting agent payment",
+      "settling": "Settlement outcome pending; do not pay again",
+      "settled": "Checking Stellar confirmation",
+      "confirmed": "Pass confirmed",
+      "revoked": "Revoked",
+      "expired": "Expired"
+    }
   }
 }

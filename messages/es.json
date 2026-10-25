@@ -1147,5 +1147,47 @@
     },
     "transaction": "Ver transacción del contrato",
     "receipt": "Ver comprobante de pago"
+  },
+  "agentPurchase": {
+    "title": "Autorizar una compra por agente",
+    "description": "Permite que tu agente de viajes pague un pase de destino en Stellar testnet.",
+    "back": "Volver al pasaporte",
+    "scope": "Un pase · 100 USDC de testnet · vence en 15 minutos. El pase y la reputación pertenecen a tu pasaporte. Este pase de desarrollo no incluye entradas ni descuentos.",
+    "offer": "Pase del destino seleccionado",
+    "wallet": "Billetera pagadora del agente (dirección pública Stellar)",
+    "consent": "Autorizo a esta billetera a pagar 100 USDC de testnet por este pase para mi pasaporte.",
+    "authorize": "Crear autorización de compra",
+    "preparing": "Preparando autorización…",
+    "ready": "Autorización de compra lista",
+    "secretNote": "Copia esta credencial y compártela solo con tu agente. Autoriza únicamente esta compra y no volverá a mostrarse cuando salgas de esta página.",
+    "endpoint": "Endpoint de compra",
+    "credential": "Credencial Bearer",
+    "instructions": "El agente envía esta credencial en la cabecera Authorization: Bearer. El endpoint devuelve los requisitos de pago x402. No la incluyas en URLs, registros ni conversaciones.",
+    "revoke": "Revocar autorización sin usar",
+    "revoked": "Autorización revocada.",
+    "revokeFailed": "No se pudo revocar. El pago puede estar procesándose; revisa tu pasaporte antes de autorizar otra compra.",
+    "empty": "No hay un pase publicado para el destino seleccionado.",
+    "apiDescription": "Un pase de destino de desarrollo; sin entradas ni descuentos. Solo USDC de Stellar testnet.",
+    "errors": {
+      "unavailable": "No se pudo completar la operación. Intentá nuevamente.",
+      "invalid": "Revisá los datos ingresados.",
+      "unauthorized": "Iniciá sesión para continuar.",
+      "wallet_required": "No se pudo completar la operación. Intentá nuevamente.",
+      "activate_first": "Activá tu pasaporte antes de recibir un sello.",
+      "already_owned": "No se pudo completar la operación. Intentá nuevamente.",
+      "self_payment": "No se pudo completar la operación. Intentá nuevamente.",
+      "idempotency_conflict": "No se pudo completar la operación. Intentá nuevamente.",
+      "purchase_pending": "Ya hay una compra abierta para este destino. Complétala o revócala antes de crear otra."
+    },
+    "history": "Tus autorizaciones de agente",
+    "noHistory": "Aún no hay autorizaciones de agente.",
+    "states": {
+      "authorized": "Esperando el pago del agente",
+      "settling": "Resultado del pago pendiente; no vuelvas a pagar",
+      "settled": "Verificando la confirmación en Stellar",
+      "confirmed": "Pase confirmado",
+      "revoked": "Revocada",
+      "expired": "Vencida"
+    }
   }
 }

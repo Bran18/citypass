@@ -1,3 +1,4 @@
+import { testX402Database } from './test-x402-db';
 import { PGlite } from '@electric-sql/pglite';
 import { readFile, readdir } from 'node:fs/promises';
 import { createHash, createHmac } from 'node:crypto';
@@ -2084,6 +2085,7 @@ try {
   check((await db.query("select 1 from private.audit_events where action='activity_confirmed' and entity_id=$1",[leased.job.id])).rows.length===1,'delivery transition audited exactly once');
   check(await denied('delete from private.activity_outbox'),'publishing source is immutable even for trusted SQL');
 
+  checks += await testX402Database(db, bridgeKey, passOffer);
   console.log(`\n${checks} database assertions passed (embedded PostgreSQL; not hosted Supabase).`);
 } finally {
   await db.close();
