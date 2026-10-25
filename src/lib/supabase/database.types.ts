@@ -14,11 +14,124 @@ export type Database = {
   }
   public: {
     Tables: {
+      checkout_requests: {
+        Row: {
+          amount: string
+          asset_code: string
+          asset_issuer: string
+          confirmed_at: string | null
+          created_at: string
+          destination_id: string
+          expires_at: string
+          id: string
+          idempotency_key: string
+          merchant_name: string
+          network: string
+          nonce: string
+          organization_id: string
+          payer_address: string | null
+          payer_user_id: string | null
+          payout_address: string
+          payout_verified_by: string | null
+          payout_source: string
+          product: string
+          status: string
+          transaction_hash: string | null
+        }
+        Insert: {
+          amount: string
+          asset_code?: string
+          asset_issuer?: string
+          confirmed_at?: string | null
+          created_at?: string
+          destination_id: string
+          expires_at?: string
+          id?: string
+          idempotency_key: string
+          merchant_name: string
+          network?: string
+          nonce?: string
+          organization_id: string
+          payer_address?: string | null
+          payer_user_id?: string | null
+          payout_address: string
+          payout_verified_by: string | null
+          payout_source?: string
+          product: string
+          status?: string
+          transaction_hash?: string | null
+        }
+        Update: {
+          amount?: string
+          asset_code?: string
+          asset_issuer?: string
+          confirmed_at?: string | null
+          created_at?: string
+          destination_id?: string
+          expires_at?: string
+          id?: string
+          idempotency_key?: string
+          merchant_name?: string
+          network?: string
+          nonce?: string
+          organization_id?: string
+          payer_address?: string | null
+          payer_user_id?: string | null
+          payout_address?: string
+          payout_verified_by?: string | null
+          payout_source?: string
+          product?: string
+          status?: string
+          transaction_hash?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "checkout_requests_organization_id_destination_id_fkey"
+            columns: ["organization_id", "destination_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id", "destination_id"]
+          },
+          {
+            foreignKeyName: "checkout_requests_payer_user_id_fkey"
+            columns: ["payer_user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "checkout_requests_payout_verified_by_fkey"
+            columns: ["payout_verified_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      countries: {
+        Row: {
+          code: string
+          currency_code: string
+          names: Json
+        }
+        Insert: {
+          code: string
+          currency_code: string
+          names: Json
+        }
+        Update: {
+          code?: string
+          currency_code?: string
+          names?: Json
+        }
+        Relationships: []
+      }
       destinations: {
         Row: {
           country_code: string
           id: string
           name: string
+          names: Json
           slug: string
           timezone: string
         }
@@ -26,6 +139,7 @@ export type Database = {
           country_code?: string
           id?: string
           name: string
+          names: Json
           slug: string
           timezone?: string
         }
@@ -33,10 +147,69 @@ export type Database = {
           country_code?: string
           id?: string
           name?: string
+          names?: Json
           slug?: string
           timezone?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "destinations_country_fkey"
+            columns: ["country_code"]
+            isOneToOne: false
+            referencedRelation: "countries"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
+      experiences: {
+        Row: {
+          booking_url: string | null
+          created_at: string
+          demo_key: string | null
+          descriptions: Json
+          destination_id: string
+          id: string
+          is_demo: boolean
+          status: string
+          titles: Json
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          booking_url?: string | null
+          created_at?: string
+          demo_key?: string | null
+          descriptions: Json
+          destination_id: string
+          id?: string
+          is_demo?: boolean
+          status?: string
+          titles: Json
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          booking_url?: string | null
+          created_at?: string
+          demo_key?: string | null
+          descriptions?: Json
+          destination_id?: string
+          id?: string
+          is_demo?: boolean
+          status?: string
+          titles?: Json
+          updated_at?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "experiences_destination_id_fkey"
+            columns: ["destination_id"]
+            isOneToOne: false
+            referencedRelation: "destinations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       hotel_reservations: {
         Row: {
@@ -82,6 +255,45 @@ export type Database = {
           },
         ]
       }
+      merchant_payouts: {
+        Row: {
+          address: string
+          network: string
+          organization_id: string
+          verified_at: string
+          verified_by: string
+        }
+        Insert: {
+          address: string
+          network: string
+          organization_id: string
+          verified_at?: string
+          verified_by: string
+        }
+        Update: {
+          address?: string
+          network?: string
+          organization_id?: string
+          verified_at?: string
+          verified_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "merchant_payouts_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: true
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "merchant_payouts_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organization_members: {
         Row: {
           organization_id: string
@@ -106,10 +318,18 @@ export type Database = {
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "organization_members_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
         ]
       }
       organizations: {
         Row: {
+          approval_version: number
           created_at: string
           destination_id: string
           id: string
@@ -118,6 +338,7 @@ export type Database = {
           status: string
         }
         Insert: {
+          approval_version?: number
           created_at?: string
           destination_id: string
           id?: string
@@ -126,6 +347,7 @@ export type Database = {
           status?: string
         }
         Update: {
+          approval_version?: number
           created_at?: string
           destination_id?: string
           id?: string
@@ -164,10 +386,59 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "passport_global_traveler_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "traveler_profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
             foreignKeyName: "passport_profiles_destination_id_fkey"
             columns: ["destination_id"]
             isOneToOne: false
             referencedRelation: "destinations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "passport_profiles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payment_receipts: {
+        Row: {
+          closed_at: string
+          created_at: string
+          ledger: number
+          network: string
+          request_id: string
+          transaction_hash: string
+        }
+        Insert: {
+          closed_at: string
+          created_at?: string
+          ledger: number
+          network: string
+          request_id: string
+          transaction_hash: string
+        }
+        Update: {
+          closed_at?: string
+          created_at?: string
+          ledger?: number
+          network?: string
+          request_id?: string
+          transaction_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_receipts_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: true
+            referencedRelation: "checkout_requests"
             referencedColumns: ["id"]
           },
         ]
@@ -430,6 +701,65 @@ export type Database = {
           },
         ]
       }
+      traveler_profiles: {
+        Row: {
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "traveler_profiles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_profiles: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          email: string | null
+          id: string
+          network: string | null
+          pollar_application: string | null
+          pollar_subject: string | null
+          wallet_address: string | null
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          id?: string
+          network?: string | null
+          pollar_application?: string | null
+          pollar_subject?: string | null
+          wallet_address?: string | null
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          id?: string
+          network?: string | null
+          pollar_application?: string | null
+          pollar_subject?: string | null
+          wallet_address?: string | null
+        }
+        Relationships: []
+      }
       venues: {
         Row: {
           address: string | null
@@ -498,8 +828,35 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      destination_pass_command: { Args: { action: string; payload: Json }; Returns: Json }
+
+      checkout_command: {
+        Args: { action: string; payload: Json }
+        Returns: Json
+      }
+      create_pollar_session: {
+        Args: { mac: string; payload: string }
+        Returns: Json
+      }
+      end_app_session: { Args: never; Returns: undefined }
+      experience_command: {
+        Args: { action: string; payload: Json }
+        Returns: Json
+      }
+      inquiry_command: {
+        Args: { action: string; payload: Json }
+        Returns: Json
+      }
+      merchant_review_command: {
+        Args: { action: string; payload: Json }
+        Returns: Json
+      }
       passport_command: {
         Args: { action: string; payload: Json }
+        Returns: Json
+      }
+      record_checkout_evidence: {
+        Args: { mac: string; payload: string }
         Returns: Json
       }
     }

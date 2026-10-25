@@ -2,7 +2,7 @@
 import { randomBytes } from 'node:crypto';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { createClient, configured } from '@/lib/supabase/server';
+import { createClient, configured, session } from '@/lib/supabase/server';
 import {
   commandSchemas,
   guestSchema,
@@ -30,9 +30,7 @@ export async function execute(
   if (!parsed.success) return { error: 'invalid' };
   try {
     const db = await createClient();
-    const {
-      data: { user },
-    } = await db.auth.getUser();
+    const user = await session();
     if (!user) return { error: 'unauthorized' };
     const token =
       action === 'issue_invitation' || action === 'issue_qr'
@@ -79,19 +77,8 @@ export async function submitGuest(input: GuestInput): Promise<ActionResult> {
     return { error: 'unavailable' };
   }
 }
-export async function signIn(locale: string) {
-  const lang = safeLocale(locale);
-  if (!configured()) redirect(`/${lang}/profile?error=not_configured`);
-  const db = await createClient();
-  const { data, error } = await db.auth.signInWithOAuth({
-    provider: 'google',
-    options: { redirectTo: `${origin()}/auth/callback?locale=${lang}` },
-  });
-  if (error || !data.url) redirect(`/${lang}/profile?error=unavailable`);
-  redirect(data.url);
-}
 export async function signOut(locale: string) {
-  const db = await createClient();
-  await db.auth.signOut();
-  redirect(`/${safeLocale(locale)}`);
+  const { closePollarSession } = await import('./pollar-actions');
+  await closePollarSession();
+  redirect(`/${safeLocale(locale)}/profile`);
 }

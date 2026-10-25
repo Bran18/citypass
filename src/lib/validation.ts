@@ -16,6 +16,7 @@ export const guestSchema = z.object({
 export type GuestInput = z.infer<typeof guestSchema>;
 const date = z.iso.date();
 export const commandSchemas = {
+  activate_traveler: z.object({}),
   activate_passport: z.object({ destination_id: uuid }),
   create_hotel: z.object({ destination_id: uuid, name: text() }),
   create_reservation: z

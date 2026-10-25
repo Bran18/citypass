@@ -1,18 +1,23 @@
 -- Run on the selected development project only. All synthetic rows roll back.
 begin;
-insert into auth.users(id) values
+insert into public.user_profiles(id) values
  ('f0000000-0000-4000-8000-000000000001'),
  ('f0000000-0000-4000-8000-000000000002'),
  ('f0000000-0000-4000-8000-000000000003');
+insert into private.app_sessions(token_hash,user_id,expires_at)
+select encode(sha256(convert_to(replace(id::text,'-','')||repeat('0',32),'UTF8')),'hex'),id,now()+interval '1 hour'
+from public.user_profiles where id::text like 'f0000000%';
+select set_config('request.headers','{}',true);
 set local role anon;
 do $$ begin
  assert (select count(*) from public.venues)=15, 'public catalog readable';
  assert public.passport_command('activate_passport','{"destination_id":"10000000-0000-4000-8000-000000000001"}') ->> 'error' = 'unauthorized', 'anonymous activation denied';
- assert not has_table_privilege(current_user,'public.hotel_reservations','select'), 'anonymous guest access denied';
+ assert (select count(*) from public.hotel_reservations)=0, 'anonymous guest access denied';
  assert not has_table_privilege(current_user,'public.stamp_claims','insert'), 'direct claim writes denied';
 end $$;
 reset role;
 select set_config('request.jwt.claim.sub','f0000000-0000-4000-8000-000000000001',true);
+select set_config('request.headers',jsonb_build_object('x-citypassport-session',replace('f0000000-0000-4000-8000-000000000001','-','')||repeat('0',32))::text,true);
 set local role authenticated;
 do $$ declare r jsonb; begin
  r:=public.passport_command('activate_passport','{"destination_id":"10000000-0000-4000-8000-000000000001"}');
@@ -29,6 +34,7 @@ do $$ declare r jsonb; begin
 end $$;
 reset role;
 select set_config('request.jwt.claim.sub','f0000000-0000-4000-8000-000000000002',true);
+select set_config('request.headers',jsonb_build_object('x-citypassport-session',replace('f0000000-0000-4000-8000-000000000002','-','')||repeat('0',32))::text,true);
 set local role authenticated;
 do $$ begin
  assert (select count(*) from public.passport_profiles)=0,'other passport hidden';
@@ -37,6 +43,7 @@ do $$ begin
 end $$;
 reset role;
 select set_config('request.jwt.claim.sub','',true);
+select set_config('request.headers','{}',true);
 set local role anon;
 do $$ declare payload jsonb; begin
  payload:=jsonb_build_object('token',repeat('a',64),'email','verification@example.invalid','full_name','Verification Guest','phone','0000000000','nationality','Argentina','residence','Argentina','arrival_time','14:00','consent',true);
@@ -45,6 +52,7 @@ do $$ declare payload jsonb; begin
 end $$;
 reset role;
 select set_config('request.jwt.claim.sub','f0000000-0000-4000-8000-000000000001',true);
+select set_config('request.headers',jsonb_build_object('x-citypassport-session',replace('f0000000-0000-4000-8000-000000000001','-','')||repeat('0',32))::text,true);
 set local role authenticated;
 do $$ begin
  assert (select count(*) from public.precheckin_submissions)=1,'hotel reads submitted guest';
@@ -63,6 +71,7 @@ do $$ begin
 end $$;
 reset role;
 select set_config('request.jwt.claim.sub','f0000000-0000-4000-8000-000000000003',true);
+select set_config('request.headers',jsonb_build_object('x-citypassport-session',replace('f0000000-0000-4000-8000-000000000003','-','')||repeat('0',32))::text,true);
 set local role authenticated;
 do $$ declare r jsonb; begin
  assert public.passport_command('claim_stamp',jsonb_build_object('token',repeat('c',64)))->>'error'='activate_first','claim needs passport';
@@ -76,6 +85,6 @@ end $$;
 reset role;
 rollback;
 select 'hosted transactional assertions passed' as result,
- (select count(*) from auth.users where id in ('f0000000-0000-4000-8000-000000000001','f0000000-0000-4000-8000-000000000002','f0000000-0000-4000-8000-000000000003')) as remaining_test_users,
+ (select count(*) from public.user_profiles where id in ('f0000000-0000-4000-8000-000000000001','f0000000-0000-4000-8000-000000000002','f0000000-0000-4000-8000-000000000003')) as remaining_test_users,
  (select count(*) from public.venues) as catalog_entries,
  (select count(*) from public.venues where participation_status='participating') as participating_entries;

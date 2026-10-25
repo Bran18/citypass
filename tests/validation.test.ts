@@ -4,6 +4,14 @@ import es from '../messages/es.json';
 import en from '../messages/en.json';
 import pt from '../messages/pt.json';
 describe('boundary validation', () => {
+  it('global activation takes no caller-selected user or destination', () => {
+    expect(
+      commandSchemas.activate_traveler.parse({
+        user_id: 'another-user',
+        destination_id: 'another-city',
+      }),
+    ).toEqual({});
+  });
   it('rejects foreign-origin QR links', () => {
     const token = 'a'.repeat(64);
     expect(
